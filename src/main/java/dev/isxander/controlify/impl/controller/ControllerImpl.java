@@ -243,6 +243,10 @@ public final class ControllerImpl implements Controller {
 		this.driver.setActive(active);
 		if (!active) {
 			this.input().resetActions();
+			// Only the current controller has its feedback updated, so nothing would ever
+			// turn off what is playing. Stop it and flush the stop to the device now.
+			this.feedback.clear();
+			this.driver.update(this);
 		}
 	}
 

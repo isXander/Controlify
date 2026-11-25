@@ -100,7 +100,7 @@ public final class BuiltinFeedback {
 
 	/// Held for as long as the player is in a world. It has no effect of its own: feedback
 	/// rules choose what it plays, so a resource pack can add feedback for any contextual
-	/// state without code. A rule with no `for` is for this event.
+	/// state without code. A rule that should always apply uses `"for": "controlify:ambient"`.
 	public static final FeedbackEvent<Ambient> AMBIENT = FeedbackEvent.builder(CUtil.rl("ambient"))
 			.param("speed", Ambient::speed)
 			.param("fall_speed", Ambient::fallSpeed)

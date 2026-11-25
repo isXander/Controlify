@@ -18,6 +18,7 @@ import dev.isxander.controlify.impl.contextual.RuleEngine;
 import dev.isxander.controlify.impl.contextual.RuleSetManager;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.controller.haptic.SteamHapticsComponent;
+import dev.isxander.controlify.impl.utils.CUtil;
 import dev.isxander.controlify.impl.utils.MinecraftUtil;
 import dev.isxander.yacl3.gui.YACLScreen;
 import net.minecraft.client.Minecraft;
@@ -31,6 +32,8 @@ import java.util.List;
 
 /// [FeedbackServices] backed by the running game, for one controller.
 public final class LiveFeedbackServices implements FeedbackServices {
+	private static final FeedbackGroup GUI_GROUP = new FeedbackGroup(CUtil.rl("gui"));
+
 	private final ControllerImpl controller;
 
 	/// The in-game state rules are matched against. It is calculated at most once per game
@@ -43,12 +46,23 @@ public final class LiveFeedbackServices implements FeedbackServices {
 		this.controller = controller;
 	}
 
-	/// Whether feedback should currently be silent: out of focus, paused (unless in the
-	/// config screen, where vibration can be tested), or in keyboard and mouse mode.
-	public static boolean shouldSilence(Minecraft minecraft, boolean outOfFocus, InputMode inputMode) {
+	/// Whether all feedback should currently be silent: out of focus, or in keyboard and mouse mode.
+	public static boolean shouldSilence(boolean outOfFocus, InputMode inputMode) {
+		return outOfFocus || inputMode == InputMode.KEYBOARD_MOUSE;
+	}
+
+	/// Whether the feedback of the game itself should currently be silent: paused, except in the
+	/// config screen, where vibration can be tested. Feedback for menus is still felt.
+	public static boolean shouldSilenceGame(Minecraft minecraft) {
 		boolean isPaused = minecraft.isPaused() || MinecraftUtil.getScreen() instanceof PauseScreen;
 		boolean isConfigScreen = MinecraftUtil.getScreen() instanceof YACLScreen;
-		return outOfFocus || (isPaused && !isConfigScreen) || inputMode == InputMode.KEYBOARD_MOUSE;
+		return isPaused && !isConfigScreen;
+	}
+
+	@Override
+	public boolean feltWhilePaused(Identifier effectId, FeedbackGroup fallback) {
+		return Controlify.instance().feedbackGroupManager().groups()
+				.membership(effectId, fallback).groups().contains(GUI_GROUP);
 	}
 
 	@Override

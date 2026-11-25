@@ -63,6 +63,7 @@ public record Scale(String param, List<Float> from, List<Float> to, Easing ease)
 	public float apply(Playback<?> playback) {
 		float value = playback.param(this.param, 0f);
 
-		return Mth.clampedMap(value, this.from.get(0), this.from.get(1), this.to.get(0), this.to.get(1));
+		float progress = Mth.clamp(Mth.inverseLerp(value, this.from.get(0), this.from.get(1)), 0f, 1f);
+		return Mth.lerp(this.ease.apply(progress), this.to.get(0), this.to.get(1));
 	}
 }

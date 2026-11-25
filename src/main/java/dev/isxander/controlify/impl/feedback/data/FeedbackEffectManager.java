@@ -42,12 +42,13 @@ public final class FeedbackEffectManager implements SimpleControlifyReloadListen
 				Identifier id = CONVERTER.fileToId(entry.getKey());
 				Resource resource = entry.getValue();
 				try (BufferedReader reader = resource.openAsReader()) {
+					// a partially decoded effect would silently play with fields missing, so only accept whole ones
 					DataFeedbackEffect.CODEC.parse(JsonOps.INSTANCE, JsonParser.parseReader(reader))
-							.resultOrPartial(error -> CUtil.LOGGER.error(
+							.ifSuccess(effect -> effects.put(id, effect))
+							.ifError(error -> CUtil.LOGGER.error(
 									"Failed to parse feedback effect '{}' from pack '{}': {}",
-									id, resource.sourcePackId(), error
-							))
-							.ifPresent(effect -> effects.put(id, effect));
+									id, resource.sourcePackId(), error.message()
+							));
 				} catch (Exception e) {
 					CUtil.LOGGER.error("Failed to load feedback effect '{}' from pack '{}'", id, resource.sourcePackId(), e);
 				}

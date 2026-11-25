@@ -35,6 +35,8 @@ public final class PlaybackImpl implements Playback<Object> {
 	float idleSeconds;
 	/// Refreshed every frame before sampling, since resources and settings can change.
 	FeedbackServices.Mixing mixing = new FeedbackServices.Mixing(1f, 0);
+	/// Whether this is still felt while the engine is game-silent. Refreshed with `mixing`.
+	boolean feltWhilePaused;
 
 	private float seconds;
 	private float previousSeconds = -1f;

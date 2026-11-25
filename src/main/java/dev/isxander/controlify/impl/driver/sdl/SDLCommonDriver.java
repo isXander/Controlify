@@ -57,6 +57,9 @@ import static dev.isxander.sdl.SdlProperties.*;
 public abstract class SDLCommonDriver<SdlController> implements Driver {
 	/// The most haptic audio written to the stream in one call.
 	private static final int HAPTIC_BUFFER_FRAMES = 4096;
+	/// How long SDL keeps a rumble going without it being refreshed. The feedback engine resends
+	/// active rumble more often than this, so it only matters if the game stops updating.
+	private static final int RUMBLE_TIMEOUT_MS = 5000;
 
 	protected final Sdl sdl;
 	protected final ControlifyLogger logger;
@@ -266,7 +269,7 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 			Optional<RumbleState> stateOpt = this.rumbleComponent.consumeRumble();
 
 			stateOpt.ifPresent(state -> {
-				if (!SDL_RumbleController(ptrController, state.strong(), state.weak(), 5000)) {
+				if (!SDL_RumbleController(ptrController, state.strong(), state.weak(), RUMBLE_TIMEOUT_MS)) {
 					this.logger.error("Could not rumble gamepad: {}", sdl.error().SDL_GetError());
 				}
 			});
@@ -276,7 +279,7 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 			Optional<TriggerRumbleState> stateOpt = this.triggerRumbleComponent.consumeTriggerRumble();
 
 			stateOpt.ifPresent(state -> {
-				if (!SDL_RumbleControllerTriggers(ptrController, state.left(), state.right(), 0)) {
+				if (!SDL_RumbleControllerTriggers(ptrController, state.left(), state.right(), RUMBLE_TIMEOUT_MS)) {
 					this.logger.error("Could not rumble triggers gamepad: {}", sdl.error().SDL_GetError());
 				}
 			});

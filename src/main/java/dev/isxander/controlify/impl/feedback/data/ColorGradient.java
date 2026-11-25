@@ -158,7 +158,9 @@ public final class ColorGradient {
 		}
 
 		public static DataResult<Color> parse(String string) {
-			boolean valid = string.startsWith("#") && (string.length() == 7 || string.length() == 9);
+			// parseLong alone would also accept a sign, such as "#+12345" or "#-12345"
+			boolean valid = string.startsWith("#") && (string.length() == 7 || string.length() == 9)
+					&& string.substring(1).chars().allMatch(c -> Character.digit(c, 16) >= 0);
 			if (valid) {
 				try {
 					long value = Long.parseLong(string.substring(1), 16);

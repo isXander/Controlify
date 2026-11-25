@@ -26,6 +26,15 @@ public interface FeedbackServices {
 	record Mixing(float gain, int rank) {
 	}
 
+	/// Whether the effect is still felt while the game is paused, as feedback for menus must be.
+	/// Everything else is silenced by [FeedbackEngine#setGameSilent].
+	///
+	/// @param effectId the effect playing
+	/// @param fallback the group to use if no resource pack assigns one
+	default boolean feltWhilePaused(Identifier effectId, FeedbackGroup fallback) {
+		return false;
+	}
+
 	/// Whether the user has vibration enabled. If not, all renderers are silenced.
 	boolean enabled();
 

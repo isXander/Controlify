@@ -86,7 +86,9 @@ public final class PcmRenderer implements FeedbackRenderer {
 		if (!this.isSounding()) {
 			return;
 		}
-		int wanted = Math.round(LEAD_SECONDS * this.sampleRate) - this.sink.queuedFrames();
+		// the next frame renders a whole frame from now, so the queue must outlast it or it would run dry
+		float lead = Math.max(LEAD_SECONDS, dt + LEAD_SECONDS / 2f);
+		int wanted = Math.round(lead * this.sampleRate) - this.sink.queuedFrames();
 		this.generate(Math.min(wanted, Math.round(MAX_BLOCK_SECONDS * this.sampleRate)));
 	}
 

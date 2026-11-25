@@ -41,9 +41,13 @@ public final class FeedbackEngine {
 	/// A held playback is released when its event has not been held for this long. Emit
 	/// sites call `hold` once per game tick (50 ms), so this tolerates two missed ticks.
 	public static final float HOLD_TIMEOUT_SECONDS = 0.15f;
-	/// Frames longer than this advance the clock by only this much, so one long frame
-	/// cannot time out every hold or skip most of a short effect.
+	/// Frames longer than this advance the hold timeouts by only this much, so one long frame
+	/// cannot time out every hold. Game ticks cannot happen more often than frames, so a hold
+	/// goes stale no faster than this however slow the frame rate gets.
 	public static final float MAX_STEP_SECONDS = 0.05f;
+	/// Frames longer than this advance playbacks by only this much, so one long hitch
+	/// cannot skip most of a short effect. Playbacks keep real time down to 10 fps.
+	public static final float MAX_PLAYBACK_STEP_SECONDS = 0.1f;
 
 	private final FeedbackServices services;
 	private final List<FeedbackRenderer> renderers;
@@ -55,8 +59,10 @@ public final class FeedbackEngine {
 
 	private final MixedFrame scratch = new MixedFrame();
 	private final MixedFrame mixed = new MixedFrame();
+	private final MixedFrame discarded = new MixedFrame();
 
 	private boolean silent;
+	private boolean gameSilent;
 	private long nextSequence;
 
 	public FeedbackEngine(FeedbackServices services, List<? extends FeedbackRenderer> renderers) {
@@ -169,12 +175,12 @@ public final class FeedbackEngine {
 	/// @param paused whether the game is paused. Held playbacks freeze while it is, since the
 	///               emit sites that keep them alive are not ticking; one-shots carry on.
 	public void update(float dt, boolean paused) {
-		dt = Math.clamp(dt, 0f, MAX_STEP_SECONDS);
+		final float step = Math.clamp(dt, 0f, MAX_STEP_SECONDS);
+		dt = Math.clamp(dt, 0f, MAX_PLAYBACK_STEP_SECONDS);
 
 		this.playbacks.removeIf(PlaybackImpl::isFinished);
 
 		if (!paused) {
-			final float step = dt;
 			this.holds.values().removeIf(held -> {
 				// a playback that ended by itself stays here until its event stops holding it,
 				// so that holding does not restart it
@@ -192,16 +198,20 @@ public final class FeedbackEngine {
 
 		for (PlaybackImpl playback : this.playbacks) {
 			playback.mixing = this.services.mixing(playback.effectId, playback.fallbackGroup);
+			playback.feltWhilePaused = this.services.feltWhilePaused(playback.effectId, playback.fallbackGroup);
 		}
 		this.playbacks.sort(DRAW_ORDER);
 
 		this.mixed.reset(this.services.hd());
+		this.discarded.reset(this.mixed.hd());
 		// playbacks are only ever added by emit sites, never while sampling
 		for (PlaybackImpl playback : this.playbacks) {
 			if (paused && playback.held && !playback.released()) {
 				continue;
 			}
-			playback.sample(this.services, this.scratch, this.mixed, dt);
+			// a silenced playback still advances, so it ends on time, but adds nothing to the output
+			boolean audible = !this.gameSilent || playback.feltWhilePaused;
+			playback.sample(this.services, this.scratch, audible ? this.mixed : this.discarded, dt);
 		}
 
 		if (this.silent || !this.services.enabled()) {
@@ -216,6 +226,12 @@ public final class FeedbackEngine {
 	/// While silent, effects keep playing but no renderer outputs anything.
 	public void setSilent(boolean silent) {
 		this.silent = silent;
+	}
+
+	/// While game-silent, everything but effects that are felt while paused (menu feedback)
+	/// is silent, as if [#setSilent] was set.
+	public void setGameSilent(boolean gameSilent) {
+		this.gameSilent = gameSilent;
 	}
 
 	public boolean isSilent() {

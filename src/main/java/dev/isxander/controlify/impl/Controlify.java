@@ -337,7 +337,8 @@ public class Controlify implements ControlifyApi {
 		this.getCurrentController().ifPresent(controller -> wrapControllerError(
 				() -> {
 					FeedbackEngine feedback = controller.feedback();
-					feedback.setSilent(LiveFeedbackServices.shouldSilence(minecraft, outOfFocus, currentInputMode()));
+					feedback.setSilent(LiveFeedbackServices.shouldSilence(outOfFocus, currentInputMode()));
+					feedback.setGameSilent(LiveFeedbackServices.shouldSilenceGame(minecraft));
 					feedback.update(deltaSeconds, minecraft.isPaused());
 				},
 				"Updating feedback",

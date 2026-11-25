@@ -17,8 +17,8 @@ import net.minecraft.resources.Identifier;
 /// Every matching rule for an event plays, so one event can play several effects at once.
 /// `"then": "controlify:none"` stops the rules below it for that event.
 ///
-/// `for` defaults to `controlify:ambient`, which is held for as long as the player is in a
-/// world, so a rule without `for` plays its effect whenever its predicate is true.
+/// `for` is required. To play an effect for as long as the player is in a world whenever its
+/// predicate is true, use `"for": "controlify:ambient"`, which is held for that whole time.
 ///
 /// @param event  the event this rule plays an effect for
 /// @param effect the id of the effect to play

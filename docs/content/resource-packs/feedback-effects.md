@@ -253,7 +253,7 @@ The ambient event's params describe the player, so effects can react to them wit
 | `air` | 0 to 1, how much breath is left |
 
 A heartbeat that grows as health drops below 30%, played by the rule
-`{ "for": "controlify:ambient" "if": "controlify:is_survival", "then": "mypack:heartbeat" }`:
+`{ "for": "controlify:ambient", "if": "controlify:is_survival", "then": "mypack:heartbeat" }`:
 
 ```json
 {
