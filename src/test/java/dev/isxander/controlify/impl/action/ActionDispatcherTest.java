@@ -255,6 +255,19 @@ class ActionDispatcherTest {
 
 
 	@Test
+	void tapAndGuiPressBothFollowTheSameRelease() {
+		ActionImpl guiPress = action("gui_press", BASE, SOUTH, new PulseLeafConfig(Gesture.GUI_PRESS, false));
+		ActionImpl tap = action("tap", BASE, SOUTH, TAP_PULSE);
+		this.dispatcher.setCurrentContexts(List.of(BASE));
+		this.physical(0, A, true);
+		this.physical(50_000_000L, A, false);
+
+		// The release finishes the press, but the tap and GUI press that follow it still reach its owners.
+		assertTrue(tap.state().consumeAllPulses());
+		assertTrue(guiPress.state().consumeAllPulses());
+	}
+
+	@Test
 	void bindingsMergeIntoOneOutput() {
 		var spec = new ActionSpec(id("nav"), Component.empty(), Component.empty(), Component.empty(),
 				Set.of(BASE.id()), _ -> true);
