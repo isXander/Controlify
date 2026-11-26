@@ -8,7 +8,7 @@ package dev.isxander.controlify.impl.gui.radial;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.renderer.RenderPipelines;
+import dev.isxander.controlify.impl.utils.render.GuiPipelines;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponents;
@@ -49,7 +49,7 @@ public final class RadialIconExtractor {
 		var pose = graphics.pose().pushMatrix();
 		pose.translate(x, y);
 		pose.scale(0.88f, 0.88f);
-		graphics.blitSprite(RenderPipelines.GUI_TEXTURED, texture, 0, 0, 18, 18);
+		graphics.blitSprite(GuiPipelines.GUI_TEXTURED, texture, 0, 0, 18, 18);
 		pose.popMatrix();
 	}
 

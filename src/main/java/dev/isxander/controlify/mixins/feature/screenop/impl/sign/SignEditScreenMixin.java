@@ -6,12 +6,15 @@
  */
 package dev.isxander.controlify.mixins.feature.screenop.impl.sign;
 
-import com.llamalad7.mixinextras.injector.ModifyReturnValue;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.SignEditScreen;
 import org.spongepowered.asm.mixin.Mixin;
+
+//? if <26.4 {
+/*import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import net.minecraft.client.gui.screens.Screen;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+*///?}
 
 //? if <26.2 {
 /*import com.llamalad7.mixinextras.expression.Definition;
@@ -22,10 +25,13 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 @Mixin(SignEditScreen.class)
 public class SignEditScreenMixin {
 
-	@ModifyReturnValue(method = "getSignYOffset", at = @At("RETURN"))
+	// 26.4 moves the sign above the keyboard in AbstractSignEditScreenMixin, which covers hanging signs too
+	//? if <26.4 {
+	/*@ModifyReturnValue(method = "getSignYOffset", at = @At("RETURN"))
 	private float modifySignY(float original) {
 		return original - calculateOverlap();
 	}
+	*///?}
 
 
 	//? if <26.2 {
@@ -38,12 +44,14 @@ public class SignEditScreenMixin {
 	*///?}
 
 
-	@Unique private float calculateOverlap() {
+	//? if <26.4 {
+	/*@Unique private float calculateOverlap() {
 		float original = 90f;
 
 		float keyboardStart = ((Screen) (Object) this).height / 2f;
 		float signEnd = original + 90;
 		return Math.max(0, signEnd - keyboardStart);
 	}
+	*///?}
 
 }

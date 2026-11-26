@@ -22,7 +22,7 @@ public final class DefaultWidgetBehaviour implements ElementBehaviour {
 
 	@Override
 	public void collectSnapPoints(ScreenContext<?> screen, Consumer<SnapPoint> output, Runnable next) {
-		if (widget.visible && widget.active) {
+		if (widget./*? if >=26.4 {*/isVisible()/*?} else {*//*visible*//*?}*/ && widget.active) {
 			next.run();
 		}
 	}

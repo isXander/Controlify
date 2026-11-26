@@ -26,7 +26,6 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.sounds.SoundEvents;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
@@ -148,12 +147,12 @@ public final class ScreenContextImpl<T extends Screen> implements ScreenContext<
 
 	@Override
 	public void playFocusChangeSound() {
-		Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(ControlifyClientSounds.SCREEN_FOCUS_CHANGE.get(), 1f));
+		Minecraft.getInstance().getSoundManager().play(ControlifyClientSounds.forUI(ControlifyClientSounds.SCREEN_FOCUS_CHANGE.get(), 1f));
 	}
 
 	@Override
 	public void playClickSound() {
-		Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
+		Minecraft.getInstance().getSoundManager().play(ControlifyClientSounds.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
 	}
 
 	@Override
@@ -168,7 +167,7 @@ public final class ScreenContextImpl<T extends Screen> implements ScreenContext<
 
 	@Override
 	public boolean tryOpenKeyboard(@NonNull Controller controller, @Nullable GuiEventListener element) {
-		if (element == null || element instanceof AbstractWidget widget && (!widget.active || !widget.visible)) {
+		if (element == null || element instanceof AbstractWidget widget && (!widget.active || !widget./*? if >=26.4 {*/isVisible()/*?} else {*//*visible*//*?}*/)) {
 			return false;
 		}
 		var keyboard = elementBehaviour(element).keyboardBehaviour(this);

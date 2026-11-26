@@ -27,6 +27,13 @@ public interface MouseHandlerAccessor {
 	@Invoker("onScroll")
 	void controlify$invokeOnScroll(long window, double scrollDeltaX, double scrollDeltaY);
 
+	// public getters were removed in 26.4
+	@Accessor("xpos")
+	double controlify$getXpos();
+
+	@Accessor("ypos")
+	double controlify$getYpos();
+
 	@Accessor("mouseGrabbed")
 	void controlify$setMouseGrabbed(boolean mouseGrabbed);
 }

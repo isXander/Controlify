@@ -117,10 +117,16 @@ public class BindConsumerScreen extends Screen {
 	}
 
 	@Override
-	public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+	public void extractRenderState(@NonNull GuiGraphicsExtractor graphics/*? if <26.4 {*//*, int mouseX, int mouseY, float a*//*?}*/) {
 		Dimension<Integer> dim = widgetToFocus.awaitingSlotDimension();
 
-		backgroundScreen.extractRenderStateWithTooltipAndSubtitles(graphics, dim.centerX(), dim.centerY(), a);
+		//? if >=26.4 {
+		// the extractor's mouse position is fixed, so the background can no longer be drawn
+		// as if hovered over the awaiting slot; keep the real cursor from highlighting it instead
+		graphics.extractWithoutMouse(() -> backgroundScreen.extractRenderStateWithTooltipAndSubtitles(graphics));
+		//?} else {
+		//backgroundScreen.extractRenderStateWithTooltipAndSubtitles(graphics, dim.centerX(), dim.centerY(), a);
+		//?}
 
 		graphics.nextStratum();
 
@@ -130,11 +136,11 @@ public class BindConsumerScreen extends Screen {
 		graphics.fill(dim.xLimit(), dim.y(), width, height, 0x80000000);
 		graphics.fill(dim.x(), dim.yLimit(), dim.xLimit(), height, 0x80000000);
 
-		super.extractRenderState(graphics, mouseX, mouseY, a);
+		super.extractRenderState(graphics/*? if <26.4 {*//*, mouseX, mouseY, a*//*?}*/);
 	}
 
 	@Override
-	public void extractBackground(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+	public void extractBackground(@NonNull GuiGraphicsExtractor graphics/*? if <26.4 {*//*, int mouseX, int mouseY, float a*//*?}*/) {
 		// do not render background
 	}
 

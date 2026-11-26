@@ -27,7 +27,7 @@ import dev.isxander.yacl3.gui.controllers.ControllerWidget;
 import dev.isxander.yacl3.gui.utils.GuiUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.renderer.RenderPipelines;
+import dev.isxander.controlify.impl.utils.render.GuiPipelines;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
@@ -148,7 +148,11 @@ public class BindController implements Controller<List<ActionBinding>> {
 		}
 
 		@Override
-		public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+		public void extractRenderState(GuiGraphicsExtractor graphics/*? if <26.4 {*//*, int mouseX, int mouseY, float a*//*?}*/) {
+			//? if >=26.4 {
+			int mouseX = graphics.mouseX();
+			int mouseY = graphics.mouseY();
+			//?}
 			hovered = isMouseOver(mouseX, mouseY);
 
 			// Unlike other options, the name sits outside any button so each slot reads as its own button.
@@ -165,7 +169,7 @@ public class BindController implements Controller<List<ActionBinding>> {
 				// The button sprite is greyscale, so tinting it marks conflicts without touching the glyphs,
 				// which always render in their own colours.
 				graphics.blitSprite(
-						RenderPipelines.GUI_TEXTURED,
+						GuiPipelines.GUI_TEXTURED,
 						GuiUtils.BUTTON_SPRITES.get(isAvailable(), highlighted && isAvailable()),
 						x1, getDimension().y(),
 						x2 - x1, getDimension().height(),

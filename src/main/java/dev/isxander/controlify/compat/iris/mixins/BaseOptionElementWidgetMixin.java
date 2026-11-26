@@ -8,7 +8,7 @@ package dev.isxander.controlify.compat.iris.mixins;
 
 //? if iris {
 
-import dev.isxander.controlify.impl.screenop.behaviours.element.ControlValueAccess;
+/*import dev.isxander.controlify.impl.screenop.behaviours.element.ControlValueAccess;
 import net.irisshaders.iris.gui.NavigationController;
 import net.irisshaders.iris.gui.element.widget.BaseOptionElementWidget;
 import org.spongepowered.asm.mixin.Mixin;
@@ -33,4 +33,4 @@ public abstract class BaseOptionElementWidgetMixin implements ControlValueAccess
 		}
 	}
 }
-//?}
+*///?}

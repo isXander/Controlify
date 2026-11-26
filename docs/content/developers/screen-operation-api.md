@@ -83,6 +83,7 @@ The `InputTarget` receives what the player types. Implement the parts your eleme
 | Keys, like backspace and enter | `supportsKeyCodeInput`, `acceptKeyCode` |
 | Copying | `supportsCopying`, `copy` |
 | Moving the cursor | `supportsCursorMovement`, `moveCursor` |
+| Finishing, from the keyboard's done key | `supportsDone`, `done`. By default, a target that accepts keys supports it, and `done` presses Enter. |
 
 ### Writing your own
 

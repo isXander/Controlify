@@ -81,15 +81,15 @@ public class KeyboardOverlayScreen extends Screen {
 	}
 
 	@Override
-	public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-		this.backgroundScreen.extractRenderState(graphics, mouseX, mouseY, a);
+	public void extractRenderState(@NonNull GuiGraphicsExtractor graphics/*? if <26.4 {*//*, int mouseX, int mouseY, float a*//*?}*/) {
+		this.backgroundScreen.extractRenderState(graphics/*? if <26.4 {*//*, mouseX, mouseY, a*//*?}*/);
 		graphics.nextStratum();
-		super.extractRenderState(graphics, mouseX, mouseY, a);
+		super.extractRenderState(graphics/*? if <26.4 {*//*, mouseX, mouseY, a*//*?}*/);
 	}
 
 	@Override
-	public void extractBackground(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-		this.backgroundScreen.extractBackground(graphics, mouseX, mouseY, a);
+	public void extractBackground(@NonNull GuiGraphicsExtractor graphics/*? if <26.4 {*//*, int mouseX, int mouseY, float a*//*?}*/) {
+		this.backgroundScreen.extractBackground(graphics/*? if <26.4 {*//*, mouseX, mouseY, a*//*?}*/);
 	}
 
 	@Override
@@ -130,8 +130,8 @@ public class KeyboardOverlayScreen extends Screen {
 	}
 
 	/**
-	 * An input target that captures {@link InputConstants#KEY_RETURN} and {@link InputConstants#KEY_ESCAPE}
-	 * key presses to close the keyboard overlay screen.
+	 * An input target that captures done, and {@link InputConstants#KEY_RETURN} and {@link InputConstants#KEY_ESCAPE}
+	 * key presses, to close the keyboard overlay screen.
 	 */
 	private class WrappedInputTarget extends DelegatingInputTarget {
 		public WrappedInputTarget(InputTarget target) {
@@ -147,6 +147,17 @@ public class KeyboardOverlayScreen extends Screen {
 			}
 
 			return super.acceptKeyCode(keycode, scancode, modifiers);
+		}
+
+		@Override
+		public boolean supportsDone() {
+			return true;
+		}
+
+		@Override
+		public boolean done() {
+			KeyboardOverlayScreen.this.onClose();
+			return true;
 		}
 	}
 

@@ -7,7 +7,6 @@
 package dev.isxander.controlify.impl.utils.render;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 
@@ -24,7 +23,7 @@ public final class RenderUtils {
 		int x = centerX - 182 / 2;
 
 		graphics.blitSprite(
-				RenderPipelines.GUI_TEXTURED,
+				GuiPipelines.GUI_TEXTURED,
 				GREEN_BACK_BAR,
 				182, 5,
 				0, 0,
@@ -33,7 +32,7 @@ public final class RenderUtils {
 		);
 		if (width > 0) {
 			graphics.blitSprite(
-					RenderPipelines.GUI_TEXTURED,
+					GuiPipelines.GUI_TEXTURED,
 					GREEN_FRONT_BAR,
 					182, 5,
 					0, 0,

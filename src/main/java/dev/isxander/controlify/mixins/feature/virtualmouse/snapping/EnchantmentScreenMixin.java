@@ -17,6 +17,12 @@ import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
+//? if >=26.4 {
+import net.minecraft.client.gui.components.inventory.EnchantmentOptionButton;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Shadow;
+//?}
+
 import java.util.function.Consumer;
 
 @Mixin(EnchantmentScreen.class)
@@ -31,7 +37,30 @@ public abstract class EnchantmentScreenMixin extends AbstractContainerScreen<Enc
 		super(menu, inventory, title);
 	}
 
+	//? if >=26.4 {
+	@Shadow
+	@Final
+	private EnchantmentOptionButton[] enchantmentOptions;
+
 	@Override
+	public void controlify$collectSnapPoints(@NonNull Consumer<SnapPoint> consumer) {
+		// From 26.4 the options are widgets and the affordable ones snap on their own. The
+		// rest are inactive but still worth hovering, to see the enchantment and its cost.
+		for (int slotIndex = 0; slotIndex < this.enchantmentOptions.length; slotIndex++) {
+			EnchantmentOptionButton option = this.enchantmentOptions[slotIndex];
+			if (option == null || option.active || this.menu.costs[slotIndex] == 0) {
+				continue;
+			}
+
+			consumer.accept(new SnapPoint(
+					option.getX() + option.getWidth() / 2,
+					option.getY() + option.getHeight() / 2,
+					option.getHeight() / 2 + 5
+			));
+		}
+	}
+	//?} else {
+	/*@Override
 	public void controlify$collectSnapPoints(@NonNull Consumer<SnapPoint> consumer) {
 		int leftPos = this.leftPos;
 		int topPos = this.topPos;
@@ -56,4 +85,5 @@ public abstract class EnchantmentScreenMixin extends AbstractContainerScreen<Enc
 			consumer.accept(new SnapPoint(centreSlotX, centreSlotY, snapRadius));
 		}
 	}
+	*///?}
 }

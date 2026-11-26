@@ -276,6 +276,10 @@ public final class ControlifyActions {
 			.id(CUtil.rl("gui_back"))
 			.category(GUI_CATEGORY)
 			.layer(BuiltinActionLayers.ANY_SCREEN));
+	public static final ActionAccessor GUI_DONE = register(ActionSpec.builder()
+			.id(CUtil.rl("gui_done"))
+			.category(GUI_CATEGORY)
+			.layer(BuiltinActionLayers.ANY_SCREEN));
 	public static final ActionAccessor GUI_NEXT_TAB = register(ActionSpec.builder()
 			.id(CUtil.rl("gui_next_tab"))
 			.category(GUI_CATEGORY)

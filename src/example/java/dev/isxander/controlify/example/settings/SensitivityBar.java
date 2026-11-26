@@ -14,7 +14,6 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.Mth;
 
 /// A custom slider, not a vanilla `AbstractSliderButton`, so Controlify has no built-in support for it.
 public class SensitivityBar extends AbstractWidget {
@@ -26,12 +25,12 @@ public class SensitivityBar extends AbstractWidget {
 
 	/// Moves the value one step in the given direction, -1 or +1.
 	public void nudge(int direction) {
-		BoatSettings.tiltSensitivity = Mth.clamp(BoatSettings.tiltSensitivity + direction * STEP, 0f, 1f);
+		BoatSettings.tiltSensitivity = Math.clamp(BoatSettings.tiltSensitivity + direction * STEP, 0f, 1f);
 	}
 
 	@Override
 	public void onClick(MouseButtonEvent event, boolean doubleClick) {
-		BoatSettings.tiltSensitivity = Mth.clamp((float) (event.x() - this.getX()) / this.getWidth(), 0f, 1f);
+		BoatSettings.tiltSensitivity = Math.clamp((float) (event.x() - this.getX()) / this.getWidth(), 0f, 1f);
 	}
 
 	@Override
@@ -44,7 +43,7 @@ public class SensitivityBar extends AbstractWidget {
 	}
 
 	@Override
-	protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float tickDelta) {
+	protected void extractWidgetRenderState(GuiGraphicsExtractor graphics/*? if <26.4 {*//*, int mouseX, int mouseY, float tickDelta*//*?}*/) {
 		int filled = (int) (this.getWidth() * BoatSettings.tiltSensitivity);
 		graphics.fill(this.getX(), this.getY(), this.getRight(), this.getBottom(), 0xFF202020);
 		graphics.fill(this.getX(), this.getY(), this.getX() + filled, this.getBottom(), 0xFF4A90D9);

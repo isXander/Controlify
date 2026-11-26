@@ -6,6 +6,7 @@
  */
 package dev.isxander.controlify.impl.gui.keyboard;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import dev.isxander.controlify.api.gui.keyboard.InputTarget;
 
 /**
@@ -41,6 +42,13 @@ public interface MixinInputTarget extends InputTarget {
 		return false;
 	}
 
+	default boolean controlify$supportsDone() {
+		return controlify$supportsKeyCodeInput();
+	}
+	default boolean controlify$done() {
+		return controlify$acceptKeyCode(InputConstants.KEY_RETURN, 0, 0);
+	}
+
 	default boolean supportsCharInput() {
 		return controlify$supportsCharInput();
 	}
@@ -67,5 +75,12 @@ public interface MixinInputTarget extends InputTarget {
 	}
 	default boolean moveCursor(int amount) {
 		return controlify$moveCursor(amount);
+	}
+
+	default boolean supportsDone() {
+		return controlify$supportsDone();
+	}
+	default boolean done() {
+		return controlify$done();
 	}
 }

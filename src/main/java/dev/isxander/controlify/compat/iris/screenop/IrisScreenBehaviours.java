@@ -8,7 +8,7 @@ package dev.isxander.controlify.compat.iris.screenop;
 
 //? if iris {
 
-import dev.isxander.controlify.api.screenop.ElementBehaviours;
+/*import dev.isxander.controlify.api.screenop.ElementBehaviours;
 import dev.isxander.controlify.api.screenop.ScreenopEvents;
 import dev.isxander.controlify.impl.screenop.behaviours.element.ControlValueAccess;
 import net.irisshaders.iris.gui.element.widget.BaseOptionElementWidget;
@@ -25,4 +25,4 @@ public final class IrisScreenBehaviours {
 		);
 	}
 }
-//?}
+*///?}

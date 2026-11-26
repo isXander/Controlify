@@ -232,6 +232,10 @@
       "gesture": "gui_press"
     }
   ],
+  "controlify:gui_done": {
+    "type": "pulse",
+    "gesture": "tap"
+  },
   "controlify:gui_next_tab": "span",
   "controlify:gui_prev_tab": "span",
   "controlify:gui_abstract_action_1": "span",

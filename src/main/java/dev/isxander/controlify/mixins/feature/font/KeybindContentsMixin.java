@@ -40,7 +40,11 @@ public class KeybindContentsMixin {
 		this.nameAsIdentifier = Identifier.tryParse(name);
 	}
 
-	@WrapMethod(method = "visit(Lnet/minecraft/network/chat/FormattedText$StyledContentConsumer;Lnet/minecraft/network/chat/Style;)Ljava/util/Optional;")
+	//? if >=26.4 {
+	@WrapMethod(method = "visitUnbounded(Lnet/minecraft/network/chat/FormattedText$StyledContentConsumer;Lnet/minecraft/network/chat/Style;)Ljava/util/Optional;")
+	//?} else {
+	//@WrapMethod(method = "visit(Lnet/minecraft/network/chat/FormattedText$StyledContentConsumer;Lnet/minecraft/network/chat/Style;)Ljava/util/Optional;")
+	//?}
 	private <T> Optional<T> replaceWrapperFont(FormattedText.StyledContentConsumer<T> output, Style currentStyle, Operation<Optional<T>> original) {
 		boolean wrapperFont = currentStyle.getFont() instanceof FontDescription.Resource(Identifier font)
 							&& ActionGlyphsImpl.WRAPPER_FONT.equals(font);
@@ -57,13 +61,13 @@ public class KeybindContentsMixin {
 								)
 						);
 				if (inputText.isPresent()) {
-					return inputText.get().visit(output, styleWithoutWrapper);
+					return inputText.get()./*? if >=26.4 {*/visitUnbounded/*?} else {*//*visit*//*?}*/(output, styleWithoutWrapper);
 				}
 			}
 
 			// NEVER return original when wrapper font is detected.
 			// wrapper font is not a defined font and will display as squares
-			return Component.literal(this.name).visit(output, styleWithoutWrapper.withItalic(true).withBold(true));
+			return Component.literal(this.name)./*? if >=26.4 {*/visitUnbounded/*?} else {*//*visit*//*?}*/(output, styleWithoutWrapper.withItalic(true).withBold(true));
 		}
 
 		return original.call(output, currentStyle);

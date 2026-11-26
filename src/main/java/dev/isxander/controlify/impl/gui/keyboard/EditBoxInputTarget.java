@@ -21,6 +21,7 @@ public record EditBoxInputTarget(EditBox editBox) implements InputTarget {
 
 	@Override
 	public boolean acceptChar(char ch, int modifiers) {
+		this.enterEditMode();
 		this.editBox.charTyped(new CharacterEvent(ch));
 		return true;
 	}
@@ -32,6 +33,7 @@ public record EditBoxInputTarget(EditBox editBox) implements InputTarget {
 
 	@Override
 	public boolean acceptKeyCode(int keycode, int scancode, int modifiers) {
+		this.enterEditMode();
 		this.editBox.keyPressed(dev.isxander.controlify.impl.utils.KeyEvents.of(keycode, scancode, modifiers));
 		return true;
 	}
@@ -56,5 +58,11 @@ public record EditBoxInputTarget(EditBox editBox) implements InputTarget {
 	public boolean copy() {
 		Minecraft.getInstance().keyboardHandler.setClipboard(this.editBox.getValue());
 		return true;
+	}
+
+	/// From 26.4 an edit box focused by arrow navigation ignores typing until it enters edit mode.
+	private void enterEditMode() {
+		//? if >=26.4
+		this.editBox.setCanChangeValue(true);
 	}
 }

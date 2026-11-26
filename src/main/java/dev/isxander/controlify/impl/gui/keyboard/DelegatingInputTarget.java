@@ -54,4 +54,14 @@ public class DelegatingInputTarget implements InputTarget {
 	public boolean moveCursor(int amount) {
 		return this.target.moveCursor(amount);
 	}
+
+	@Override
+	public boolean supportsDone() {
+		return this.target.supportsDone();
+	}
+
+	@Override
+	public boolean done() {
+		return this.target.done();
+	}
 }

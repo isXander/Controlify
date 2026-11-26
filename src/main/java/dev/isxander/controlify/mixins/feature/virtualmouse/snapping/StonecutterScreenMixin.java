@@ -6,7 +6,16 @@
  */
 package dev.isxander.controlify.mixins.feature.virtualmouse.snapping;
 
-import dev.isxander.controlify.api.screenop.SnapPoint;
+//? if >=26.4 {
+import net.minecraft.client.gui.screens.inventory.StonecutterScreen;
+import org.spongepowered.asm.mixin.Mixin;
+
+/// From 26.4 the recipe buttons are widgets, which are snap targets on their own.
+@Mixin(StonecutterScreen.class)
+public abstract class StonecutterScreenMixin {
+}
+//?} else {
+/*import dev.isxander.controlify.api.screenop.SnapPoint;
 import dev.isxander.controlify.impl.screenop.behaviours.screen.AdditionalSnapPointsBehaviour;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.StonecutterScreen;
@@ -68,3 +77,4 @@ public abstract class StonecutterScreenMixin extends AbstractContainerScreen<Sto
 		}
 	}
 }
+*///?}

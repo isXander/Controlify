@@ -135,7 +135,8 @@ public final class VirtualMouseState implements VirtualMouse {
 	}
 
 	private void initializePosition() {
-		double x = minecraft.mouseHandler.xpos(), y = minecraft.mouseHandler.ypos();
+		var mouse = (MouseHandlerAccessor) minecraft.mouseHandler;
+		double x = mouse.controlify$getXpos(), y = mouse.controlify$getYpos();
 		if (x == -50 && y == -50) {
 			x = minecraft.getWindow().getScreenWidth() / 2.0;
 			y = minecraft.getWindow().getScreenHeight() / 2.0;
@@ -184,8 +185,8 @@ public final class VirtualMouseState implements VirtualMouse {
 	}
 
 	public void move(double x, double y) {
-		targetX = Mth.clamp(targetX + x, 0, minecraft.getWindow().getWidth());
-		targetY = Mth.clamp(targetY + y, 0, minecraft.getWindow().getHeight());
+		targetX = Math.clamp(targetX + x, 0, minecraft.getWindow().getWidth());
+		targetY = Math.clamp(targetY + y, 0, minecraft.getWindow().getHeight());
 	}
 
 	public void updatePosition(float delta) {

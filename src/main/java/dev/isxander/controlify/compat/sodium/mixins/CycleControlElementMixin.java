@@ -8,7 +8,7 @@ package dev.isxander.controlify.compat.sodium.mixins;
 
 //? if sodium {
 
-import dev.isxander.controlify.impl.screenop.behaviours.element.ControlValueAccess;
+/*import dev.isxander.controlify.impl.screenop.behaviours.element.ControlValueAccess;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
@@ -22,4 +22,4 @@ public abstract class CycleControlElementMixin implements ControlValueAccess {
 		this.cycleControl(direction < 0);
 	}
 }
-//?}
+*///?}

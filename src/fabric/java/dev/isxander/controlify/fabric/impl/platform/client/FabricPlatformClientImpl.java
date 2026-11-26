@@ -96,15 +96,25 @@ public class FabricPlatformClientImpl implements PlatformClientUtilImpl {
 	@Override
 	public void registerPostScreenRender(ScreenRenderEvent event) {
 		ScreenEvents.BEFORE_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
-			ScreenEvents.afterExtract(screen).register((unused, graphics, mouseX, mouseY, tickDelta) -> {
+			//? if >=26.4 {
+			ScreenEvents.afterExtract(screen).register((_, graphics) -> {
+				event.onRender(screen, graphics, graphics.mouseX(), graphics.mouseY(), graphics.partialTicks());
+			});
+			//?} else {
+			/*ScreenEvents.afterExtract(screen).register((_, graphics, mouseX, mouseY, tickDelta) -> {
 				event.onRender(screen, graphics, mouseX, mouseY, tickDelta);
 			});
+			*///?}
 		});
 	}
 
 	@Override
 	public void addHudLayer(Identifier id, HudRenderLayer renderLayer) {
-		HudElementRegistry.addLast(id, renderLayer::render);
+		//? if >=26.4 {
+		HudElementRegistry.addLast(id, graphics -> renderLayer.render(graphics, graphics.deltaTracker()));
+		//?} else {
+		//HudElementRegistry.addLast(id, renderLayer::render);
+		//?}
 	}
 
 	@Override

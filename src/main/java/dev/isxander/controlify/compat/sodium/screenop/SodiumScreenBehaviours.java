@@ -8,7 +8,7 @@ package dev.isxander.controlify.compat.sodium.screenop;
 
 //? if sodium {
 
-import dev.isxander.controlify.api.screenop.ElementBehaviourFactory;
+/*import dev.isxander.controlify.api.screenop.ElementBehaviourFactory;
 import dev.isxander.controlify.api.screenop.ElementBehaviourRegistry;
 import dev.isxander.controlify.api.screenop.ElementBehaviours;
 import dev.isxander.controlify.api.screenop.ScreenopEvents;
@@ -47,4 +47,4 @@ public final class SodiumScreenBehaviours {
 		}
 	}
 }
-//?}
+*///?}

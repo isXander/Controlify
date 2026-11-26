@@ -6,6 +6,7 @@
  */
 package dev.isxander.controlify.impl.gui.screen;
 
+import dev.isxander.controlify.impl.gui.MenuTextures;
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.isxander.controlify.api.action.Action;
 import dev.isxander.controlify.api.gui.ButtonGuidePredicate;
@@ -27,6 +28,8 @@ import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ScrollableLayout;
+//? if >=26.4
+import net.minecraft.client.gui.components.AbstractScrollArea;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
@@ -39,7 +42,7 @@ import net.minecraft.client.gui.navigation.ScreenDirection;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.client.input.KeyEvent;
-import net.minecraft.client.renderer.RenderPipelines;
+import dev.isxander.controlify.impl.utils.render.GuiPipelines;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -236,15 +239,25 @@ public class RadialMenuEditScreen extends Screen {
 
 	private ScrollableLayout createScrollable(Layout content, int width) {
 		int height = layout.getContentHeight() - COLUMN_HEADER_HEIGHT - 4;
-		//? if >=26.2 {
+		//? if >=26.4 {
 		ScrollableLayout scrollable = new ScrollableLayout(
+				minecraft,
+				content,
+				height,
+				AbstractScrollArea.defaultSettings(10),
+				0,
+				ScrollableLayout.ReserveStrategy.RIGHT,
+				null
+		);
+		//?} else if >=26.2 {
+		/*ScrollableLayout scrollable = new ScrollableLayout(
 				minecraft,
 				content,
 				height,
 				ScrollableLayout.ReserveStrategy.RIGHT
 		);
 		scrollable.setScrollbarSpacing(0);
-		//?} else {
+		*///?} else {
 		//ScrollableLayout scrollable = new ScrollableLayout(minecraft, content, height);
 		//?}
 		scrollable.setMinWidth(width);
@@ -363,21 +376,21 @@ public class RadialMenuEditScreen extends Screen {
 	}
 
 	@Override
-	public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
-		super.extractRenderState(graphics, mouseX, mouseY, partialTick);
+	public void extractRenderState(@NonNull GuiGraphicsExtractor graphics/*? if <26.4 {*//*, int mouseX, int mouseY, float partialTick*//*?}*/) {
+		super.extractRenderState(graphics/*? if <26.4 {*//*, mouseX, mouseY, partialTick*//*?}*/);
 
-		Identifier headerTexture = minecraft.level == null ? Screen.HEADER_SEPARATOR : Screen.INWORLD_HEADER_SEPARATOR;
+		Identifier headerTexture = minecraft.level == null ? Screen.HEADER_SEPARATOR : MenuTextures.INWORLD_HEADER_SEPARATOR;
 		graphics.blit(
-				RenderPipelines.GUI_TEXTURED,
+				GuiPipelines.GUI_TEXTURED,
 				headerTexture,
 				0, layout.getHeaderHeight(),
 				0.0F, 0.0F,
 				width, 2,
 				32, 2
 		);
-		Identifier footerTexture = minecraft.level == null ? Screen.FOOTER_SEPARATOR : Screen.INWORLD_FOOTER_SEPARATOR;
+		Identifier footerTexture = minecraft.level == null ? Screen.FOOTER_SEPARATOR : MenuTextures.INWORLD_FOOTER_SEPARATOR;
 		graphics.blit(
-				RenderPipelines.GUI_TEXTURED,
+				GuiPipelines.GUI_TEXTURED,
 				footerTexture,
 				0, height - layout.getFooterHeight(),
 				0.0F, 0.0F,
@@ -450,10 +463,9 @@ public class RadialMenuEditScreen extends Screen {
 
 		@Override
 		protected void extractWidgetRenderState(
-				@NonNull GuiGraphicsExtractor graphics,
-				int mouseX,
-				int mouseY,
-				float partialTick
+				@NonNull GuiGraphicsExtractor graphics
+				//? if <26.4
+				//, int mouseX, int mouseY, float partialTick
 		) {
 			String countLabel = Long.toString(count);
 			int countWidth = font.width(countLabel);
@@ -483,10 +495,9 @@ public class RadialMenuEditScreen extends Screen {
 
 		@Override
 		protected void extractWidgetRenderState(
-				@NonNull GuiGraphicsExtractor graphics,
-				int mouseX,
-				int mouseY,
-				float partialTick
+				@NonNull GuiGraphicsExtractor graphics
+				//? if <26.4
+				//, int mouseX, int mouseY, float partialTick
 		) {
 			Component label = trim(getMessage(), getWidth() - 20);
 			int textY = getY() + (getHeight() - font.lineHeight) / 2;
@@ -522,10 +533,9 @@ public class RadialMenuEditScreen extends Screen {
 
 		@Override
 		protected void extractWidgetRenderState(
-				@NonNull GuiGraphicsExtractor graphics,
-				int mouseX,
-				int mouseY,
-				float partialTick
+				@NonNull GuiGraphicsExtractor graphics
+				//? if <26.4
+				//, int mouseX, int mouseY, float partialTick
 		) {
 			graphics.centeredText(
 					font,
@@ -565,7 +575,7 @@ public class RadialMenuEditScreen extends Screen {
 		}
 
 		@Override
-		protected void extractContents(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+		protected void extractContents(@NonNull GuiGraphicsExtractor graphics/*? if <26.4 {*//*, int mouseX, int mouseY, float partialTick*//*?}*/) {
 			boolean columnFocused = getFocused() == (equipped ? equippedContainer : availableContainer);
 			boolean focused = isFocused() && columnFocused;
 			boolean carried = Objects.equals(id, model.carried());
@@ -619,7 +629,7 @@ public class RadialMenuEditScreen extends Screen {
 		}
 
 		@Override
-		protected void extractContents(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+		protected void extractContents(@NonNull GuiGraphicsExtractor graphics/*? if <26.4 {*//*, int mouseX, int mouseY, float partialTick*//*?}*/) {
 			boolean columnFocused = getFocused() == (equipped ? equippedContainer : availableContainer);
 			boolean focused = isFocused() && columnFocused;
 			int background = focused

@@ -6,6 +6,7 @@
  */
 package dev.isxander.controlify.impl.gui.screen;
 
+import dev.isxander.controlify.impl.gui.MenuTextures;
 import dev.isxander.controlify.api.controller.Controller;
 import dev.isxander.controlify.api.gui.ButtonGuidePredicate;
 import dev.isxander.controlify.api.screenop.ScreenBehaviour;
@@ -23,6 +24,8 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ScrollableLayout;
+//? if >=26.4
+import net.minecraft.client.gui.components.AbstractScrollArea;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.layouts.GridLayout;
@@ -34,7 +37,7 @@ import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.renderer.RenderPipelines;
+import dev.isxander.controlify.impl.utils.render.GuiPipelines;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -91,15 +94,25 @@ public class ProfileSelectionScreen extends Screen {
 		scrollContent.addChild(profileGrid, 0, 0, settings -> settings.paddingTop(10));
 		scrollContent.arrangeElements();
 
-		//? if >=26.2 {
+		//? if >=26.4 {
 		ScrollableLayout scrollable = new ScrollableLayout(
+				this.minecraft,
+				scrollContent,
+				this.layout.getContentHeight(),
+				AbstractScrollArea.defaultSettings(10),
+				0,
+				ScrollableLayout.ReserveStrategy.RIGHT,
+				null
+		);
+		//?} else if >=26.2 {
+		/*ScrollableLayout scrollable = new ScrollableLayout(
 				this.minecraft,
 				scrollContent,
 				this.layout.getContentHeight(),
 				ScrollableLayout.ReserveStrategy.RIGHT
 		);
 		scrollable.setScrollbarSpacing(0);
-		//?} else {
+		*///?} else {
 		//ScrollableLayout scrollable = new ScrollableLayout(this.minecraft, scrollContent, this.layout.getContentHeight());
 		//?}
 		scrollable.setMinWidth(columns * CARD_WIDTH + Math.max(0, columns - 1) * CARD_SPACING);
@@ -177,21 +190,21 @@ public class ProfileSelectionScreen extends Screen {
 	}
 
 	@Override
-	public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
-		super.extractRenderState(graphics, mouseX, mouseY, partialTick);
+	public void extractRenderState(@NonNull GuiGraphicsExtractor graphics/*? if <26.4 {*//*, int mouseX, int mouseY, float partialTick*//*?}*/) {
+		super.extractRenderState(graphics/*? if <26.4 {*//*, mouseX, mouseY, partialTick*//*?}*/);
 
-		Identifier headerTexture = this.minecraft.level == null ? Screen.HEADER_SEPARATOR : Screen.INWORLD_HEADER_SEPARATOR;
+		Identifier headerTexture = this.minecraft.level == null ? Screen.HEADER_SEPARATOR : MenuTextures.INWORLD_HEADER_SEPARATOR;
 		graphics.blit(
-				RenderPipelines.GUI_TEXTURED,
+				GuiPipelines.GUI_TEXTURED,
 				headerTexture,
 				0, this.layout.getHeaderHeight(),
 				0.0F, 0.0F,
 				this.width, 2,
 				32, 2
 		);
-		Identifier footerTexture = this.minecraft.level == null ? Screen.FOOTER_SEPARATOR : Screen.INWORLD_FOOTER_SEPARATOR;
+		Identifier footerTexture = this.minecraft.level == null ? Screen.FOOTER_SEPARATOR : MenuTextures.INWORLD_FOOTER_SEPARATOR;
 		graphics.blit(
-				RenderPipelines.GUI_TEXTURED,
+				GuiPipelines.GUI_TEXTURED,
 				footerTexture,
 				0, this.height - this.layout.getFooterHeight(),
 				0.0F, 0.0F,
@@ -410,13 +423,13 @@ public class ProfileSelectionScreen extends Screen {
 		}
 
 		@Override
-		protected void extractContents(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+		protected void extractContents(@NonNull GuiGraphicsExtractor graphics/*? if <26.4 {*//*, int mouseX, int mouseY, float partialTick*//*?}*/) {
 			boolean activeProfile = Controlify.instance().config().getActiveProfileIndex() == this.profileIndex;
 			extractCardBackground(graphics, this, activeProfile);
 			int centerX = this.getX() + this.getWidth() / 2;
 			int iconX = centerX - ICON_SIZE / 2;
 			int iconY = this.getY() + 7;
-			graphics.blitSprite(RenderPipelines.GUI_TEXTURED, this.controller.icon(), iconX, iconY, ICON_SIZE, ICON_SIZE);
+			graphics.blitSprite(GuiPipelines.GUI_TEXTURED, this.controller.icon(), iconX, iconY, ICON_SIZE, ICON_SIZE);
 			graphics.centeredText(font, trim(this.profileName, this.getWidth() - 10), centerX, this.getY() + 56, 0xFFFFFFFF);
 			graphics.centeredText(font, trim(this.controller.name(), this.getWidth() - 10), centerX, this.getY() + 70, 0xFFA0A0A0);
 
@@ -460,7 +473,7 @@ public class ProfileSelectionScreen extends Screen {
 		}
 
 		@Override
-		protected void extractContents(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+		protected void extractContents(@NonNull GuiGraphicsExtractor graphics/*? if <26.4 {*//*, int mouseX, int mouseY, float partialTick*//*?}*/) {
 			extractCardBackground(graphics, this, false);
 			int centerX = this.getX() + this.getWidth() / 2;
 			int plusY = this.getY() + 31;

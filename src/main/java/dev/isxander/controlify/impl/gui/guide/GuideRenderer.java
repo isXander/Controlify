@@ -92,7 +92,7 @@ public final class GuideRenderer {
 
 
 		@Override
-		public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+		public void extractRenderState(@NonNull GuiGraphicsExtractor graphics/*? if <26.4 {*//*, int mouseX, int mouseY, float a*//*?}*/) {
 			GuideRenderer.extractRenderState(graphics, instance, minecraft, bottomAligned, textContrast, guiScale);
 		}
 

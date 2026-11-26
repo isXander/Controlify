@@ -6,7 +6,6 @@
  */
 package dev.isxander.controlify.impl.ingame;
 
-import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec2;
 import org.apache.commons.lang3.Validate;
 import net.minecraft.client.player.ClientInput;
@@ -31,8 +30,8 @@ public class DualInput extends ClientInput {
 		Vec2 input1MoveVec = InGameInputHandler.getMoveVec(input1);
 		Vec2 input2MoveVec = InGameInputHandler.getMoveVec(input2);
 		this.setMoveVec(
-				Mth.clamp(input1MoveVec.y + input2MoveVec.y, -1, 1),
-				Mth.clamp(input1MoveVec.x + input2MoveVec.x, -1, 1)
+				Math.clamp(input1MoveVec.y + input2MoveVec.y, -1, 1),
+				Math.clamp(input1MoveVec.x + input2MoveVec.x, -1, 1)
 		);
 
 		Input input1 = this.input1.keyPresses;

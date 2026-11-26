@@ -7,8 +7,7 @@
 package dev.isxander.controlify.impl.server;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.brigadier.arguments.FloatArgumentType;
-import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
@@ -19,10 +18,21 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.IdentifierArgument;
+//? if >=26.4 {
+import net.minecraft.commands.arguments.FloatArgument;
+import net.minecraft.commands.arguments.StringArgument;
+//?} else {
+/*import com.mojang.brigadier.arguments.FloatArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
+*///?}
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
+//? if >=26.4 {
+import net.minecraft.server.permissions.PermissionCheck;
+import net.minecraft.server.permissions.Permissions;
+//?}
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
@@ -34,11 +44,14 @@ import java.util.Map;
 
 /// `/controlify feedback play <effect> [origin <pos>|origin entity <entity>] [groups <group>...] [param <name> <value>]... [to <targets>]`
 ///
-/// Built like vanilla's `/execute`: every clause is a literal that redirects back to the same set
-/// of clauses, so they can be chained in any order and each is optional. Brigadier gives the
-/// finished command only the arguments of its own segment, so each clause records into a
-/// [Pending] as the chain runs, and the end of the chain reads it. A chain always starts with the
-/// effect clause, which begins a fresh [Pending]; commands run one at a time on the server thread.
+/// Built like vanilla's `/execute`: the clauses are children of the effect argument, and every
+/// clause redirects back to it, so they can be chained in any order and each is optional. A group
+/// list redirects back to the `groups` literal instead, so further groups need no repeated keyword.
+/// Redirect targets must be registered nodes, as the command tree is copied node by node.
+/// Brigadier gives the finished command only the arguments of its own segment, so each clause
+/// records into a [Pending] as the chain runs, and the end of the chain reads it. Only the first
+/// segment holds the effect, so it begins a fresh [Pending]; commands run one at a time on the
+/// server thread.
 public final class FeedbackCommand {
 	private static final SimpleCommandExceptionType NO_TARGETS = new SimpleCommandExceptionType(
 			Component.translatable("controlify.command.feedback.no_targets"));
@@ -59,15 +72,17 @@ public final class FeedbackCommand {
 
 	/// The `feedback` subcommand of [ControlifyCommand].
 	public static LiteralArgumentBuilder<CommandSourceStack> build() {
-		// The clauses redirect back here. It is never registered: only its children are used.
-		CommandNode<CommandSourceStack> clauses = Commands.literal("clauses").build();
+		// Holds the clauses, and every clause redirects back here.
+		CommandNode<CommandSourceStack> effect = Commands.argument("effect", IdentifierArgument.id())
+				.executes(FeedbackCommand::run)
+				.build();
 		// After a group, another group can follow without repeating `groups`.
-		CommandNode<CommandSourceStack> moreGroups = Commands.literal("groups").build();
+		CommandNode<CommandSourceStack> groups = Commands.literal("groups").build();
 
 		CommandNode<CommandSourceStack> origin = Commands.literal("origin")
 				.then(Commands.argument("pos", Vec3Argument.vec3(true))
 						.executes(FeedbackCommand::run)
-						.redirect(clauses, context -> {
+						.redirect(effect, context -> {
 							Vec3 pos = Vec3Argument.getVec3(context, "pos");
 							Pending pending = pending(context);
 							pending.origin = new FeedbackEffectPacket.Origin.Position(pos);
@@ -76,7 +91,7 @@ public final class FeedbackCommand {
 				.then(Commands.literal("entity")
 						.then(Commands.argument("entity", EntityArgument.entity())
 								.executes(FeedbackCommand::run)
-								.redirect(clauses, context -> {
+								.redirect(effect, context -> {
 									Entity entity = EntityArgument.getEntity(context, "entity");
 									Pending pending = pending(context);
 									pending.origin = new FeedbackEffectPacket.Origin.EntityOrigin(entity.getId());
@@ -84,20 +99,14 @@ public final class FeedbackCommand {
 								})))
 				.build();
 
-		CommandNode<CommandSourceStack> groups = Commands.literal("groups")
-				.then(Commands.argument("group", IdentifierArgument.id())
-						.executes(FeedbackCommand::run)
-						.redirect(moreGroups, FeedbackCommand::addGroup))
-				.build();
-
 		CommandNode<CommandSourceStack> param = Commands.literal("param")
-				.then(Commands.argument("name", StringArgumentType.word())
-						.then(Commands.argument("value", FloatArgumentType.floatArg())
+				.then(Commands.argument("name", word())
+						.then(Commands.argument("value", floatArg())
 								.executes(FeedbackCommand::run)
-								.redirect(clauses, context -> {
+								.redirect(effect, context -> {
 									pending(context).params.put(
-											StringArgumentType.getString(context, "name"),
-											FloatArgumentType.getFloat(context, "value")
+											getWord(context, "name"),
+											getFloat(context, "value")
 									);
 									return context.getSource();
 								})))
@@ -106,32 +115,30 @@ public final class FeedbackCommand {
 		CommandNode<CommandSourceStack> to = Commands.literal("to")
 				.then(Commands.argument("targets", EntityArgument.players())
 						.executes(FeedbackCommand::run)
-						.redirect(clauses, context -> {
+						.redirect(effect, context -> {
 							pending(context).targets = EntityArgument.getPlayers(context, "targets");
 							return context.getSource();
 						}))
 				.build();
 
-		for (CommandNode<CommandSourceStack> clause : List.of(origin, groups, param, to)) {
-			clauses.addChild(clause);
-			moreGroups.addChild(clause);
-		}
-		// `groups a b c`: each following group is just an identifier, tried after the literals above
-		moreGroups.addChild(Commands.argument("group", IdentifierArgument.id())
+		// `groups a b c`: each group is an identifier, tried after the literal clauses below
+		groups.addChild(Commands.argument("group", IdentifierArgument.id())
 				.executes(FeedbackCommand::run)
-				.redirect(moreGroups, FeedbackCommand::addGroup)
+				.redirect(groups, FeedbackCommand::addGroup)
 				.build());
+		for (CommandNode<CommandSourceStack> clause : List.of(origin, param, to)) {
+			effect.addChild(clause);
+			groups.addChild(clause);
+		}
+		effect.addChild(groups);
 
 		return Commands.literal("feedback")
-				.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
-				.then(Commands.literal("play")
-						.then(Commands.argument("effect", IdentifierArgument.id())
-								.executes(FeedbackCommand::run)
-								.redirect(clauses, context -> {
-									current = new Pending();
-									current.effect = IdentifierArgument.getId(context, "effect");
-									return context.getSource();
-								})));
+				//? if >=26.4 {
+				.requires(Commands.hasPermission(new PermissionCheck.Require(Permissions.COMMANDS_GAMEMASTER)))
+				//?} else {
+				//.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+				//?}
+				.then(Commands.literal("play").then(effect));
 	}
 
 	private static CommandSourceStack addGroup(CommandContext<CommandSourceStack> context) {
@@ -141,8 +148,12 @@ public final class FeedbackCommand {
 	}
 
 	private static Pending pending(CommandContext<CommandSourceStack> context) {
-		if (current == null) {
+		// the first segment of a chain is the only one with the effect
+		if (current == null || has(context, "effect")) {
 			current = new Pending();
+			if (has(context, "effect")) {
+				current.effect = IdentifierArgument.getId(context, "effect");
+			}
 		}
 		return current;
 	}
@@ -195,12 +206,47 @@ public final class FeedbackCommand {
 			pending.groups.add(IdentifierArgument.getId(context, "group"));
 		}
 		if (has(context, "name") && has(context, "value")) {
-			pending.params.put(StringArgumentType.getString(context, "name"), FloatArgumentType.getFloat(context, "value"));
+			pending.params.put(getWord(context, "name"), getFloat(context, "value"));
 		}
 		if (has(context, "targets")) {
 			pending.targets = EntityArgument.getPlayers(context, "targets");
 		}
 	}
+
+	// 26.4 only accepts vanilla's wrappers around Brigadier's argument types in the command tree
+	//? if >=26.4 {
+	private static ArgumentType<String> word() {
+		return StringArgument.word();
+	}
+
+	private static ArgumentType<Float> floatArg() {
+		return FloatArgument.floatArg();
+	}
+
+	private static String getWord(CommandContext<CommandSourceStack> context, String name) {
+		return StringArgument.getString(context, name);
+	}
+
+	private static float getFloat(CommandContext<CommandSourceStack> context, String name) {
+		return FloatArgument.getFloat(context, name);
+	}
+	//?} else {
+	/*private static ArgumentType<String> word() {
+		return StringArgumentType.word();
+	}
+
+	private static ArgumentType<Float> floatArg() {
+		return FloatArgumentType.floatArg();
+	}
+
+	private static String getWord(CommandContext<CommandSourceStack> context, String name) {
+		return StringArgumentType.getString(context, name);
+	}
+
+	private static float getFloat(CommandContext<CommandSourceStack> context, String name) {
+		return FloatArgumentType.getFloat(context, name);
+	}
+	*///?}
 
 	private static boolean has(CommandContext<CommandSourceStack> context, String name) {
 		try {

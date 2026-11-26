@@ -33,10 +33,11 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+//? if >=26.4
+import net.minecraft.client.gui.narration.NarrationTrigger;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import dev.isxander.controlify.impl.utils.render.GuiPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
@@ -145,7 +146,7 @@ public class RadialMenuScreen extends Screen {
 
 		pageIndex = Math.floorMod(pageIndex + direction, pageCount());
 		buildCurrentPage();
-		minecraft.getSoundManager().play(SimpleSoundInstance.forUI(ControlifyClientSounds.SCREEN_FOCUS_CHANGE.get(), 1f));
+		minecraft.getSoundManager().play(ControlifyClientSounds.forUI(ControlifyClientSounds.SCREEN_FOCUS_CHANGE.get(), 1f));
 		FeedbackEventImpl.fireOn(BuiltinFeedback.UI_NAVIGATE, controller, null);
 	}
 
@@ -195,7 +196,7 @@ public class RadialMenuScreen extends Screen {
 
 			if (newSelected != selectedButton) {
 				selectedButton = newSelected;
-				minecraft.getSoundManager().play(SimpleSoundInstance.forUI(ControlifyClientSounds.SCREEN_FOCUS_CHANGE.get(), 1f));
+				minecraft.getSoundManager().play(ControlifyClientSounds.forUI(ControlifyClientSounds.SCREEN_FOCUS_CHANGE.get(), 1f));
 				FeedbackEventImpl.fireOn(BuiltinFeedback.UI_NAVIGATE, controller, null);
 			}
 
@@ -218,8 +219,8 @@ public class RadialMenuScreen extends Screen {
 	}
 
 	@Override
-	public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
-		super.extractRenderState(graphics, mouseX, mouseY, delta);
+	public void extractRenderState(@NonNull GuiGraphicsExtractor graphics/*? if <26.4 {*//*, int mouseX, int mouseY, float delta*//*?}*/) {
+		super.extractRenderState(graphics/*? if <26.4 {*//*, mouseX, mouseY, delta*//*?}*/);
 
 		if (buttons.length == 0) {
 			graphics.centeredText(font, Component.translatable("controlify.radial_menu.empty"), width / 2, height / 2, -1);
@@ -288,7 +289,7 @@ public class RadialMenuScreen extends Screen {
 
 	private static void playClickSound() {
 		Minecraft.getInstance().getSoundManager()
-				.play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
+				.play(ControlifyClientSounds.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
 	}
 
 	public interface RadialItem {
@@ -316,12 +317,12 @@ public class RadialMenuScreen extends Screen {
 		}
 
 		@Override
-		public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
+		public void extractRenderState(@NonNull GuiGraphicsExtractor graphics/*? if <26.4 {*//*, int mouseX, int mouseY, float delta*//*?}*/) {
 			var pose = graphics.pose().pushMatrix();
 			pose.translate(x + translateX, y + translateY);
 			pose.pushMatrix();
 			pose.scale(2, 2);
-			graphics.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, 0, 0, focused ? 16 : 0, 0, 16, 16, 32, 16);
+			graphics.blit(GuiPipelines.GUI_TEXTURED, TEXTURE, 0, 0, focused ? 16 : 0, 0, 16, 16, 32, 16);
 			pose.popMatrix();
 
 			pose.pushMatrix();
@@ -362,7 +363,7 @@ public class RadialMenuScreen extends Screen {
 		}
 
 		@Override
-		public @NonNull NarrationPriority narrationPriority() {
+		public @NonNull NarrationPriority narrationPriority(/*? if >=26.4 {*/NarrationTrigger trigger/*?}*/) {
 			return focused ? NarrationPriority.FOCUSED : NarrationPriority.NONE;
 		}
 

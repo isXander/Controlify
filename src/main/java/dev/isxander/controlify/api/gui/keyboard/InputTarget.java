@@ -6,6 +6,8 @@
  */
 package dev.isxander.controlify.api.gui.keyboard;
 
+import com.mojang.blaze3d.platform.InputConstants;
+
 /// Represents a target/consumer for keyboard input.
 /// A target accepts input from the on-screen keyboard.
 /// It can have various capabilities, all of which are optional to implement.
@@ -43,6 +45,21 @@ public interface InputTarget {
 
 	default boolean moveCursor(int amount) {
 		return false;
+	}
+
+	/// Whether the target can be told the player is done typing, from the keyboard's done key.
+	/// By default, a target that accepts key codes supports it.
+	default boolean supportsDone() {
+		return this.supportsKeyCodeInput();
+	}
+
+	/// The player is done typing. What that means is up to the target: chat sends the message,
+	/// and a sign saves and closes its editor.
+	/// By default, this presses Enter.
+	///
+	/// @return whether the target handled it
+	default boolean done() {
+		return this.acceptKeyCode(InputConstants.KEY_RETURN, 0, 0);
 	}
 
 }

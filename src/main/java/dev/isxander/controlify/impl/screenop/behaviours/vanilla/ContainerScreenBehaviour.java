@@ -20,6 +20,7 @@ import dev.isxander.controlify.impl.utils.MinecraftUtil;
 import dev.isxander.controlify.mixins.feature.guide.screen.AbstractContainerScreenAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.ItemSlotMouseAction;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
@@ -53,7 +54,7 @@ public final class ContainerScreenBehaviour implements ScreenBehaviour {
 			next.run();
 			return;
 		}
-		var slot = geometry.controlify$getHoveredSlot();
+		var slot = access.controlify$getHoveredSlot();
 		boolean slotActionTaken = false;
 		if (slot != null) {
 			if (slot.hasItem() && access.controlify$handleItemSlotActions((ControllerImpl) controller)) {
@@ -95,7 +96,7 @@ public final class ContainerScreenBehaviour implements ScreenBehaviour {
 		if (MinecraftUtil.getScreen() != screen || !context.inputMode().isController()) {
 			return;
 		}
-		var slot = geometry.controlify$getHoveredSlot();
+		var slot = access.controlify$getHoveredSlot();
 		if (slot != previousSlot) {
 			if (slot != null) {
 				context.playNavigationHaptic(controller);
@@ -109,12 +110,15 @@ public final class ContainerScreenBehaviour implements ScreenBehaviour {
 		var mouse = context.virtualMouse();
 		guide.update(new ContainerContext(
 				Minecraft.getInstance().player, slot, screen.getMenu().getCarried(),
-				geometry.controlify$invokeHasClickedOutside(mouse.getCurrentX(1f), mouse.getCurrentY(1f),
-						geometry.controlify$getLeftPos(), geometry.controlify$getTopPos()),
+				access.controlify$hasClickedOutside(mouse.getCurrentX(1f), mouse.getCurrentY(1f)),
 				controller
 		));
 		guideRenderer.setGuiScale(settings.screenGuiScale);
-		guideRenderer.extractRenderState(graphics, (int) mouse.getCurrentX(tickDelta), (int) mouse.getCurrentY(tickDelta), tickDelta);
+		//? if >=26.4 {
+		guideRenderer.extractRenderState(graphics);
+		//?} else {
+		//guideRenderer.extractRenderState(graphics, (int) mouse.getCurrentX(tickDelta), (int) mouse.getCurrentY(tickDelta), tickDelta);
+		//?}
 	}
 
 	@Override
@@ -129,8 +133,17 @@ public final class ContainerScreenBehaviour implements ScreenBehaviour {
 	}
 
 	public interface Access {
+		@Nullable Slot controlify$getHoveredSlot();
+
+		boolean controlify$hasClickedOutside(double mouseX, double mouseY);
+
 		void controlify$clickSlot(@Nullable Slot slot, int slotId, int button, ContainerInput input);
 
 		boolean controlify$handleItemSlotActions(ControllerImpl controller);
+	}
+
+	/// Implemented on 26.4's `SlotWidget`, which owns each slot's item action.
+	public interface SlotWidgetAccess {
+		ItemSlotMouseAction controlify$getItemSlotMouseAction();
 	}
 }

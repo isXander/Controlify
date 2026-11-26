@@ -26,7 +26,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.RenderPipelines;
+import dev.isxander.controlify.impl.utils.render.GuiPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
@@ -265,8 +265,8 @@ public class ControllerMappingMakerScreen extends Screen implements DontInterrup
 	}
 
 	@Override
-	public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-		super.extractRenderState(graphics, mouseX, mouseY, a);
+	public void extractRenderState(@NonNull GuiGraphicsExtractor graphics/*? if <26.4 {*//*, int mouseX, int mouseY, float a*//*?}*/) {
+		super.extractRenderState(graphics/*? if <26.4 {*//*, mouseX, mouseY, a*//*?}*/);
 
 		graphics.centeredText(font, Component.translatable("controlify.gui.mapping_maker.title"), width / 2, 15, 0xFFFFFFFF);
 
@@ -292,7 +292,7 @@ public class ControllerMappingMakerScreen extends Screen implements DontInterrup
 			Identifier texture = currentStage.background();
 			int color = ColorUtils.grey(colour, 1f);
 			graphics.blit(
-					RenderPipelines.GUI_TEXTURED,
+					GuiPipelines.GUI_TEXTURED,
 					texture,
 					0, 0,
 					(float) 0, (float) 0,
@@ -306,7 +306,7 @@ public class ControllerMappingMakerScreen extends Screen implements DontInterrup
 			Identifier texture = currentStage != null ? currentStage.foreground() : CUtil.rl("textures/gui/controllerdiagram/faceview.png");
 			int color = ColorUtils.grey(colour, 1f);
 			graphics.blit(
-					RenderPipelines.GUI_TEXTURED,
+					GuiPipelines.GUI_TEXTURED,
 					texture,
 					0, 0,
 					(float) 0, (float) 0,

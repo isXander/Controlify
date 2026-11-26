@@ -34,7 +34,7 @@ public class TabNavigationBarMixin {
 	//?} else {
 	//@Inject(method = "extractRenderState", at = @At("RETURN"))
 	//?}
-	private void renderControllerButtonOverlay(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+	private void renderControllerButtonOverlay(GuiGraphicsExtractor graphics/*? if <26.4 {*//*, int mouseX, int mouseY, float delta*//*?}*/, CallbackInfo ci) {
 		if (Controlify.instance().currentInputMode().isController()) {
 			Controlify.instance().getCurrentController().ifPresent(c -> {
 				if (c.settings().generic.guide.showScreenGuides) {

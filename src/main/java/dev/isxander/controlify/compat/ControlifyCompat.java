@@ -6,10 +6,13 @@
  */
 package dev.isxander.controlify.compat;
 
-import dev.isxander.controlify.compat.fancymenu.FancyMenuCompat;
-import dev.isxander.controlify.compat.iris.screenop.IrisScreenBehaviours;
+//? if fancy_menu
+//import dev.isxander.controlify.compat.fancymenu.FancyMenuCompat;
+//? if iris
+//import dev.isxander.controlify.compat.iris.screenop.IrisScreenBehaviours;
 import dev.isxander.controlify.compat.simplevoicechat.SimpleVoiceChatCompat;
-import dev.isxander.controlify.compat.sodium.screenop.SodiumScreenBehaviours;
+//? if sodium
+//import dev.isxander.controlify.compat.sodium.screenop.SodiumScreenBehaviours;
 import dev.isxander.controlify.compat.yacl.screenop.YACLScreenBehaviours;
 import dev.isxander.controlify.impl.platform.main.PlatformMainUtil;
 import dev.isxander.controlify.impl.utils.CUtil;
@@ -31,10 +34,10 @@ public class ControlifyCompat {
 	public static void initializeScreenBehaviours() {
 		YACLScreenBehaviours.initialize();
 		//? if sodium {
-		wrapCompatCall("sodium", SodiumScreenBehaviours::initialize);
+		//wrapCompatCall("sodium", SodiumScreenBehaviours::initialize);
 		//?}
 		//? if iris {
-		wrapCompatCall("iris", IrisScreenBehaviours::initialize);
+		//wrapCompatCall("iris", IrisScreenBehaviours::initialize);
 		//?}
 	}
 
@@ -51,7 +54,7 @@ public class ControlifyCompat {
 		//?}
 
 		//? if fancy_menu {
-		try {
+		/*try {
 			wrapCompatCall(
 					FANCY_MENU,
 					FancyMenuCompat::registerActions
@@ -59,7 +62,7 @@ public class ControlifyCompat {
 		} catch (NoClassDefFoundError e) {
 			disabledMods.add(FANCY_MENU);
 		}
-		//?}
+		*///?}
 	}
 
 	private static void wrapCompatCall(String modid, Runnable runnable) throws NoClassDefFoundError {

@@ -15,7 +15,7 @@
     ],
     [
       "z", "x", "c", "v", "b", "n", "m", "-", "[", "]",
-      { "regular": { "action": "enter" }, "shortcut": "controlify:pause", "width": 2.0 }
+      { "regular": { "action": "done" }, "shortcut": "controlify:gui_done", "width": 2.0 }
     ]
   ]
 }

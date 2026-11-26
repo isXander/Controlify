@@ -6,6 +6,7 @@
  */
 package dev.isxander.controlify.impl.gui.screen;
 
+import dev.isxander.controlify.impl.gui.MenuTextures;
 import com.google.common.collect.ImmutableList;
 import dev.isxander.controlify.api.controller.Controller;
 import dev.isxander.controlify.api.gui.ButtonGuidePredicate;
@@ -21,7 +22,6 @@ import dev.isxander.controlify.impl.gui.components.PlainTextWidget;
 import dev.isxander.controlify.impl.screenop.ScreenContextImpl;
 import dev.isxander.controlify.impl.utils.CUtil;
 import dev.isxander.controlify.impl.utils.MinecraftUtil;
-import dev.isxander.controlify.mixins.feature.ui.AbstractSelectionListAccessor;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.*;
@@ -32,9 +32,11 @@ import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+//? if >=26.4
+import net.minecraft.client.gui.narration.NarrationTrigger;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.RenderPipelines;
+import dev.isxander.controlify.impl.utils.render.GuiPipelines;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -138,12 +140,12 @@ public class ControlifySettingsScreen extends Screen {
 	}
 
 	@Override
-	public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-		super.extractRenderState(graphics, mouseX, mouseY, a);
+	public void extractRenderState(@NonNull GuiGraphicsExtractor graphics/*? if <26.4 {*//*, int mouseX, int mouseY, float a*//*?}*/) {
+		super.extractRenderState(graphics/*? if <26.4 {*//*, mouseX, mouseY, a*//*?}*/);
 
-		Identifier texture = minecraft.level == null ? Screen.FOOTER_SEPARATOR : Screen.INWORLD_FOOTER_SEPARATOR;
+		Identifier texture = minecraft.level == null ? Screen.FOOTER_SEPARATOR : MenuTextures.INWORLD_FOOTER_SEPARATOR;
 		graphics.blit(
-				RenderPipelines.GUI_TEXTURED,
+				GuiPipelines.GUI_TEXTURED,
 				texture,
 				0, footerY,
 				0.0F, 0.0F,
@@ -153,15 +155,15 @@ public class ControlifySettingsScreen extends Screen {
 	}
 
 	@Override
-	public void extractBackground(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-		super.extractBackground(graphics, mouseX, mouseY, a);
+	public void extractBackground(@NonNull GuiGraphicsExtractor graphics/*? if <26.4 {*//*, int mouseX, int mouseY, float a*//*?}*/) {
+		super.extractBackground(graphics/*? if <26.4 {*//*, mouseX, mouseY, a*//*?}*/);
 
 		Identifier texture = minecraft.level == null
-				? AbstractSelectionListAccessor.controlify$getMenuListBackground()
-				: AbstractSelectionListAccessor.controlify$getInWorldMenuListBackground();
+				? MenuTextures.MENU_LIST_BACKGROUND
+				: MenuTextures.INWORLD_MENU_LIST_BACKGROUND;
 
 		graphics.blit(
-				RenderPipelines.GUI_TEXTURED,
+				GuiPipelines.GUI_TEXTURED,
 				texture,
 				0, 0,
 				0f, 0f,
@@ -194,7 +196,7 @@ public class ControlifySettingsScreen extends Screen {
 		}
 
 		@Override
-		public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+		public void extractRenderState(@NonNull GuiGraphicsExtractor graphics/*? if <26.4 {*//*, int mouseX, int mouseY, float a*//*?}*/) {
 			graphics.fill(
 					this.x, this.y,
 					this.x + this.width, this.y + this.height,
@@ -271,16 +273,16 @@ public class ControlifySettingsScreen extends Screen {
 		}
 
 		@Override
-		public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-			super.extractRenderState(graphics, mouseX, mouseY, a);
+		public void extractRenderState(@NonNull GuiGraphicsExtractor graphics/*? if <26.4 {*//*, int mouseX, int mouseY, float a*//*?}*/) {
+			super.extractRenderState(graphics/*? if <26.4 {*//*, mouseX, mouseY, a*//*?}*/);
 
 			updateProfileInfo(false);
 
-			this.settingsButton.extractRenderState(graphics, mouseX, mouseY, a);
-			this.swapProfileButton.extractRenderState(graphics, mouseX, mouseY, a);
-			this.profileNameText.extractRenderState(graphics, mouseX, mouseY, a);
-			this.controllerNameText.extractRenderState(graphics, mouseX, mouseY, a);
-			this.controllerIcon.extractRenderState(graphics, mouseX, mouseY, a);
+			this.settingsButton.extractRenderState(graphics/*? if <26.4 {*//*, mouseX, mouseY, a*//*?}*/);
+			this.swapProfileButton.extractRenderState(graphics/*? if <26.4 {*//*, mouseX, mouseY, a*//*?}*/);
+			this.profileNameText.extractRenderState(graphics/*? if <26.4 {*//*, mouseX, mouseY, a*//*?}*/);
+			this.controllerNameText.extractRenderState(graphics/*? if <26.4 {*//*, mouseX, mouseY, a*//*?}*/);
+			this.controllerIcon.extractRenderState(graphics/*? if <26.4 {*//*, mouseX, mouseY, a*//*?}*/);
 		}
 
 		private void onSettingsButtonPressed() {
@@ -375,7 +377,7 @@ public class ControlifySettingsScreen extends Screen {
 		}
 
 		@Override
-		public @NonNull NarrationPriority narrationPriority() {
+		public @NonNull NarrationPriority narrationPriority(/*? if >=26.4 {*/NarrationTrigger trigger/*?}*/) {
 			return NarrationPriority.NONE;
 		}
 
@@ -431,12 +433,12 @@ public class ControlifySettingsScreen extends Screen {
 		}
 
 		@Override
-		public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-			super.extractRenderState(graphics, mouseX, mouseY, a);
+		public void extractRenderState(@NonNull GuiGraphicsExtractor graphics/*? if <26.4 {*//*, int mouseX, int mouseY, float a*//*?}*/) {
+			super.extractRenderState(graphics/*? if <26.4 {*//*, mouseX, mouseY, a*//*?}*/);
 
-			this.adText.extractRenderState(graphics, mouseX, mouseY, a);
-			this.adButton.extractRenderState(graphics, mouseX, mouseY, a);
-			this.disableAdButton.extractRenderState(graphics, mouseX, mouseY, a);
+			this.adText.extractRenderState(graphics/*? if <26.4 {*//*, mouseX, mouseY, a*//*?}*/);
+			this.adButton.extractRenderState(graphics/*? if <26.4 {*//*, mouseX, mouseY, a*//*?}*/);
+			this.disableAdButton.extractRenderState(graphics/*? if <26.4 {*//*, mouseX, mouseY, a*//*?}*/);
 		}
 
 		@Override
@@ -445,7 +447,7 @@ public class ControlifySettingsScreen extends Screen {
 		}
 
 		@Override
-		public @NonNull NarrationPriority narrationPriority() {
+		public @NonNull NarrationPriority narrationPriority(/*? if >=26.4 {*/NarrationTrigger trigger/*?}*/) {
 			return NarrationPriority.NONE;
 		}
 

@@ -8,7 +8,7 @@ package dev.isxander.controlify.impl.gui.controllers;
 
 import dev.isxander.yacl3.gui.image.ImageRenderer;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.renderer.RenderPipelines;
+import dev.isxander.controlify.impl.utils.render.GuiPipelines;
 import net.minecraft.resources.Identifier;
 
 /// Draws a controller type's icon sprite, scaled to fit the description width.
@@ -26,7 +26,7 @@ public class ControllerSpriteImageRenderer implements ImageRenderer {
 	public int render(GuiGraphicsExtractor graphics, int x, int y, int renderWidth, float tickDelta) {
 		int size = Math.max(1, Math.min(renderWidth, MAX_SIZE));
 		int drawX = x + (renderWidth - size) / 2;
-		graphics.blitSprite(RenderPipelines.GUI_TEXTURED, this.sprite, drawX, y, size, size);
+		graphics.blitSprite(GuiPipelines.GUI_TEXTURED, this.sprite, drawX, y, size, size);
 		return size;
 	}
 

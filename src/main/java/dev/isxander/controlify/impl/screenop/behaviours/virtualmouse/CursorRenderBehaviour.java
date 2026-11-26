@@ -14,7 +14,7 @@ import dev.isxander.controlify.impl.screenop.VirtualMouseState;
 import dev.isxander.controlify.impl.utils.CUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.renderer.RenderPipelines;
+import dev.isxander.controlify.impl.utils.render.GuiPipelines;
 import net.minecraft.resources.Identifier;
 
 public final class CursorRenderBehaviour implements ScreenBehaviour {
@@ -50,7 +50,7 @@ public final class CursorRenderBehaviour implements ScreenBehaviour {
 		pose.scale(0.5f, 0.5f);
 
 		graphics.blit(
-				RenderPipelines.GUI_TEXTURED,
+				GuiPipelines.GUI_TEXTURED,
 				CURSOR_TEXTURE,
 				-16, -16,
 				0, 0,

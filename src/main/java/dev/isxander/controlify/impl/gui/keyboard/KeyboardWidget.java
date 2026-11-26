@@ -124,11 +124,16 @@ public class KeyboardWidget extends AbstractWidget implements ContainerEventHand
 	}
 
 	@Override
-	protected void extractWidgetRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+	protected void extractWidgetRenderState(@NonNull GuiGraphicsExtractor graphics/*? if <26.4 {*//*, int mouseX, int mouseY, float a*//*?}*/) {
+		//? if >=26.4 {
+		int mouseX = graphics.mouseX();
+		int mouseY = graphics.mouseY();
+		float a = graphics.partialTicks();
+		//?}
 		for (KeyWidget key : keys) {
 			// vanilla widget render does other stuff like mouse hover update etc
 			// render method of keys are empty - this doesn't actually do any rendering
-			key.extractRenderState(graphics, mouseX, mouseY, a);
+			key.extractRenderState(graphics/*? if <26.4 {*//*, mouseX, mouseY, a*//*?}*/);
 		}
 
 		// draw in a managed context so we can batch render calls

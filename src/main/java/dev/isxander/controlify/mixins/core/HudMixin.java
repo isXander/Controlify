@@ -13,14 +13,20 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(
-		//? if >=26.2 {
-		net.minecraft.client.gui.Hud.class
+		//? if >=26.4 {
+		net.minecraft.client.gui.components.PlayerTabOverlay.class
+		//?} else if >=26.2 {
+		//net.minecraft.client.gui.Hud.class
 		//?} else {
 		//net.minecraft.client.gui.Gui.class
 		//?}
 )
 public class HudMixin {
-	@ModifyExpressionValue(method = "extractTabList", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/KeyMapping;isDown()Z"))
+	// 26.4 moved the player list key check from the HUD into the tab overlay itself
+	@ModifyExpressionValue(
+			method = /*? if >=26.4 {*/"extractRenderState"/*?} else {*//*"extractTabList"*//*?}*/,
+			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/KeyMapping;isDown()Z")
+	)
 	private boolean shouldShowPlayerList(boolean keyDown) {
 		return keyDown || Controlify.instance().inGameInputHandler().map(InGameInputHandler::shouldShowPlayerList).orElse(false);
 	}

@@ -27,6 +27,7 @@
     "controlify:open_chat": ["controlify:button/dpad_up"],
     "controlify:gui_press": ["controlify:button/south"],
     "controlify:gui_back": ["controlify:button/east"],
+    "controlify:gui_done": ["controlify:button/start"],
     "controlify:gui_next_tab": ["controlify:button/right_shoulder"],
     "controlify:gui_prev_tab": ["controlify:button/left_shoulder"],
     "controlify:gui_abstract_action_1": ["controlify:button/west"],

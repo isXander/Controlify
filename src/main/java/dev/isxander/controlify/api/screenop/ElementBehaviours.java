@@ -90,7 +90,7 @@ public final class ElementBehaviours {
 	/// @param factory constructs the behaviour to guard for each widget
 	/// @return a factory applying the live active-and-visible condition
 	public static <T extends AbstractWidget> ElementBehaviourFactory<T> enabledWidget(ElementBehaviourFactory<? super T> factory) {
-		return widget -> conditional(() -> widget.active && widget.visible, factory.create(widget));
+		return widget -> conditional(() -> widget.active && widget./*? if >=26.4 {*/isVisible()/*?} else {*//*visible*//*?}*/, factory.create(widget));
 	}
 
 	/// Confines continuation cancellation to an inner behaviour or composed group.

@@ -23,8 +23,10 @@ import java.util.function.Consumer;
 
 @Mixin(CreativeModeInventoryScreen.class)
 public abstract class CreativeModeInventoryScreenMixin extends AbstractContainerScreen<CreativeModeInventoryScreen.ItemPickerMenu> implements CreativeModeInventoryScreenBehaviour.Access {
-	@Shadow
+	//? if <26.4 {
+	/*@Shadow
 	protected abstract int getTabX(CreativeModeTab group);
+	*///?}
 
 	@Shadow
 	private float scrollOffs;
@@ -40,14 +42,16 @@ public abstract class CreativeModeInventoryScreenMixin extends AbstractContainer
 
 	@Override
 	public void controlify$collectTabSnapPoints(List<CreativeModeTab> tabs, Consumer<SnapPoint> consumer) {
-
-		for (var tab : tabs) {
+		// from 26.4 the tabs are buttons in tab bars, which snap as widgets
+		//? if <26.4 {
+		/*for (var tab : tabs) {
 			boolean topRow = tab.row() == CreativeModeTab.Row.TOP;
 			int x = leftPos + getTabX(tab);
 			int y = topPos + (topRow ? -28 : imageHeight - 4);
 
 			consumer.accept(new SnapPoint(new Vector2i(x + 13, y + 16), 18));
 		}
+		*///?}
 
 		if (canScroll()) {
 			int scrollTop = topPos + 18;

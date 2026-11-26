@@ -85,7 +85,7 @@ public abstract class EditBoxMixin extends AbstractWidget {
 	@Expression("this.hint != null")
 	@Inject(method = "extractWidgetRenderState", at = @At(value = "MIXINEXTRAS:EXPRESSION", ordinal = 0))
 	private void extractKeyboardHintText(
-			GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a,
+			GuiGraphicsExtractor graphics/*? if <26.4 {*//*, int mouseX, int mouseY, float a*//*?}*/,
 			CallbackInfo ci,
 			@Local(name = "color") int color,
 			@Local(name = "drawX") int drawX,

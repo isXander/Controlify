@@ -59,7 +59,7 @@ public final class FocusInputBehaviour implements ScreenBehaviour {
 			// A widget can be disabled or hidden while it still holds focus. Do not
 			// reactivate it through the generic keyboard path after its behaviour skips.
 			boolean unavailable = focused.stream().anyMatch(element ->
-					element instanceof AbstractWidget widget && (!widget.active || !widget.visible));
+					element instanceof AbstractWidget widget && (!widget.active || !widget./*? if >=26.4 {*/isVisible()/*?} else {*//*visible*//*?}*/));
 			if (!unavailable && !context.tryOpenKeyboard(controller, focused.isEmpty() ? null : focused.getFirst())) {
 				context.screen().keyPressed(dev.isxander.controlify.impl.utils.KeyEvents.of(InputConstants.KEY_RETURN, 0, 0));
 			}

@@ -12,7 +12,7 @@
     [
       ["/", "|"],
       "a", "s", "d", "f", "g", "h", "j", "k", "l",
-      { "regular": { "action": "enter" }, "shortcut": "controlify:pause", "width": 2.0 }
+      { "regular": { "action": "done" }, "shortcut": "controlify:gui_done", "width": 2.0 }
     ],
     [
       { "regular": { "action": "shift" }, "shortcut": "controlify:gui_abstract_action_3", "width": 2.0 },

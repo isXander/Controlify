@@ -56,9 +56,9 @@ public final class BuiltinFeedback {
 					(float) Mth.length(dx, dz) * TICKS_PER_SECOND,
 					(float) Math.max(-dy, 0.0) * TICKS_PER_SECOND,
 					(float) player.fallDistance,
-					Mth.clamp(player.getHealth() / player.getMaxHealth(), 0f, 1f),
-					Mth.clamp(player.getFoodData().getFoodLevel() / 20f, 0f, 1f),
-					Mth.clamp(player.getAirSupply() / (float) player.getMaxAirSupply(), 0f, 1f)
+					Math.clamp(player.getHealth() / player.getMaxHealth(), 0f, 1f),
+					Math.clamp(player.getFoodData().getFoodLevel() / 20f, 0f, 1f),
+					Math.clamp(player.getAirSupply() / (float) player.getMaxAirSupply(), 0f, 1f)
 			);
 		}
 	}

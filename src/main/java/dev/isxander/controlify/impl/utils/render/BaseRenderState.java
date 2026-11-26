@@ -11,19 +11,20 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.render.TextureSetup;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3x2f;
 
-//? if >=26.3 {
-import com.mojang.renderpearl.api.pipeline.RenderPipeline;
+//? if >=26.4 {
+import net.minecraft.client.gui.GuiPipeline;
+//?} else if >=26.3 {
+//import com.mojang.renderpearl.api.pipeline.RenderPipeline;
 //?} else {
 //import com.mojang.blaze3d.pipeline.RenderPipeline;
 //?}
 
 public record BaseRenderState(
-		RenderPipeline pipeline,
+		/*? if >=26.4 {*/GuiPipeline/*?} else {*//*RenderPipeline*//*?}*/ pipeline,
 		TextureSetup textureSetup,
 		Matrix3x2f pose,
 		@Nullable ScreenRectangle bounds,
@@ -35,7 +36,7 @@ public record BaseRenderState(
 		ScreenRectangle bounds = boundsFromMaxPoints(x0, y0, x1, y1, graphics.pose(), scissorArea);
 
 		return new BaseRenderState(
-				texture != null ? RenderPipelines.GUI_TEXTURED : RenderPipelines.GUI,
+				texture != null ? GuiPipelines.GUI_TEXTURED : GuiPipelines.GUI,
 				textureSetup(texture),
 				new Matrix3x2f(graphics.pose()),
 				bounds, scissorArea
@@ -46,7 +47,7 @@ public record BaseRenderState(
 		@Nullable ScreenRectangle scissorArea = PlatformClientUtil.peekScissorStack(graphics);
 
 		return new BaseRenderState(
-				texture != null ? RenderPipelines.GUI_TEXTURED : RenderPipelines.GUI,
+				texture != null ? GuiPipelines.GUI_TEXTURED : GuiPipelines.GUI,
 				textureSetup(texture),
 				new Matrix3x2f(graphics.pose()),
 				null, scissorArea
@@ -56,7 +57,11 @@ public record BaseRenderState(
 	private static TextureSetup textureSetup(@Nullable Identifier textureId) {
 		if (textureId != null) {
 			var texture = Minecraft.getInstance().getTextureManager().getTexture(textureId);
-			return TextureSetup.singleTexture(texture.getTextureView(), texture.getSampler());
+			//? if >=26.4 {
+			return TextureSetup.singleTexture(texture.textureView(), texture.sampler());
+			//?} else {
+			//return TextureSetup.singleTexture(texture.getTextureView(), texture.getSampler());
+			//?}
 		}
 		return TextureSetup.noTexture();
 	}

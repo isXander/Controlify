@@ -8,7 +8,7 @@ package dev.isxander.controlify.compat.sodium.mixins;
 
 //? if sodium {
 
-import dev.isxander.controlify.compat.sodium.screenop.SodiumScreenOperations;
+/*import dev.isxander.controlify.compat.sodium.screenop.SodiumScreenOperations;
 import dev.isxander.controlify.impl.screenop.ScreenContextImpl;
 import net.caffeinemc.mods.sodium.client.config.ConfigManager;
 import net.caffeinemc.mods.sodium.client.config.structure.Page;
@@ -96,4 +96,4 @@ public abstract class VideoSettingsScreenMixin extends Screen implements SodiumS
 		return undoButton;
 	}
 }
-//?}
+*///?}

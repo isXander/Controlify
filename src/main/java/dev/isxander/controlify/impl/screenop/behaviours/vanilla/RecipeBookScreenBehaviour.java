@@ -11,15 +11,16 @@ import dev.isxander.controlify.api.controller.Controller;
 import dev.isxander.controlify.api.screenop.*;
 import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.mixins.feature.virtualmouse.snapping.RecipeBookComponentAccessor;
+import dev.isxander.controlify.impl.virtualmouse.SnapUtils;
 import dev.isxander.controlify.mixins.feature.virtualmouse.snapping.RecipeBookPageAccessor;
-import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.inventory.AbstractRecipeBookScreen;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
-import net.minecraft.client.gui.screens.recipebook.RecipeBookTabButton;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.input.MouseButtonInfo;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public final class RecipeBookScreenBehaviour implements ScreenBehaviour {
 
@@ -51,10 +52,9 @@ public final class RecipeBookScreenBehaviour implements ScreenBehaviour {
 			while (action.on(controller).pulse().consumePulse()) {
 				RecipeBookComponentAccessor componentAccessor = (RecipeBookComponentAccessor) recipeBookComponent;
 				RecipeBookPageAccessor pageAccessor = (RecipeBookPageAccessor) componentAccessor.controlify$getRecipeBookPage();
-				List<RecipeBookTabButton> tabs = componentAccessor.controlify$getTabButtons()
-						.stream().filter(tab -> tab.visible).toList();
-				int index = tabs.indexOf(componentAccessor.controlify$getSelectedTab());
-				ImageButton button = null;
+				List<? extends AbstractWidget> tabs = SnapUtils.getVisibleRecipeTabs(componentAccessor);
+				int index = tabs.indexOf(SnapUtils.getSelectedRecipeTab(componentAccessor));
+				AbstractWidget button = null;
 				if (action == ControlifyActions.VMOUSE_PAGE_NEXT) {
 					button = pageAccessor.controlify$getForwardButton();
 				} else if (action == ControlifyActions.VMOUSE_PAGE_PREV) {
@@ -75,8 +75,8 @@ public final class RecipeBookScreenBehaviour implements ScreenBehaviour {
 	}
 
 	@Override
-	public void collectSnapPoints(java.util.function.Consumer<SnapPoint> output, Runnable next) {
-		dev.isxander.controlify.impl.virtualmouse.SnapUtils.addRecipeSnapPoints(
+	public void collectSnapPoints(Consumer<SnapPoint> output, Runnable next) {
+		SnapUtils.addRecipeSnapPoints(
 				recipeBookScreenAccessor.controlify$getRecipeBookComponent(), output);
 		next.run();
 	}

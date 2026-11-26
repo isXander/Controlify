@@ -34,7 +34,10 @@ public final class PauseScreenBehaviour implements ScreenBehaviour {
 
 	@Override
 	public void handleInteraction(Controller controller, Runnable next) {
-
+		if (ControlifyActions.GUI_DONE.on(controller).pulse().consumeAllPulses()) {
+			screen.onClose();
+			return;
+		}
 		if (ControlifyActions.GUI_ABSTRACT_ACTION_1.on(controller).pulse().consumeAllPulses()) {
 			MinecraftUtil.setScreen(new OptionsScreen(screen, minecraft.options/*? if <26.3 {*//*, true*//*?}*/));
 			return;

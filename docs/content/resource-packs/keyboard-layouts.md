@@ -129,6 +129,7 @@ Does a built-in job.
 | `shift` | Turns Shift on or off. Shift turns off by itself after the next key that has a different shifted function. Pressing `shift` while Shift lock is on turns both off. |
 | `shift_lock` | Turns Shift on, and keeps it on until `shift_lock` is pressed again. |
 | `enter` | Presses Enter. |
+| `done` | Tells the text box the player is done typing. Chat sends the message, a sign saves and closes, and other text boxes close the keyboard. Text boxes that don't handle it press Enter instead. |
 | `backspace` | Presses Backspace. |
 | `tab` | Presses Tab. |
 | `left_arrow`<br>`right_arrow`<br>`up_arrow`<br>`down_arrow` | Presses an arrow key. |
@@ -212,9 +213,11 @@ The built-in layouts use these shortcuts. Follow them so the keyboard behaves th
 | Backspace | `controlify:gui_abstract_action_1` |
 | Space | `controlify:gui_abstract_action_2` |
 | Shift | `controlify:gui_abstract_action_3` |
-| Enter | `controlify:pause` |
+| Done | `controlify:gui_done` |
 
-Don't use `controlify:gui_next_tab` or `controlify:gui_prev_tab` as shortcuts. In a text box that has a cursor,
+Shortcuts must be actions in a screen layer, like the `gui_` actions. Actions in other layers, like
+`controlify:pause`, never fire while a screen is open. Don't use `controlify:gui_next_tab` or
+`controlify:gui_prev_tab` as shortcuts. In a text box that has a cursor,
 the keyboard uses them to move the cursor.
 
 When you translate a layout, keep the special actions in the same places where you can, and use the most common

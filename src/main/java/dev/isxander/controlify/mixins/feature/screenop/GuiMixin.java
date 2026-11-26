@@ -22,7 +22,7 @@ import org.spongepowered.asm.mixin.injection.At;
 )
 public class GuiMixin {
 	@WrapWithCondition(method = "setScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;removed()V"))
-	private boolean preventRemovingOldScreen(Screen oldScreen, @Local(argsOnly = true, name = "screen") Screen screen) {
+	private boolean preventRemovingOldScreen(Screen oldScreen, @Local(argsOnly = true) Screen screen) {
 		return !(screen instanceof KeyboardOverlayScreen);
 	}
 }

@@ -15,6 +15,7 @@ import dev.isxander.controlify.impl.screenop.ScreenRuntime;
 import dev.isxander.controlify.mixins.feature.virtualmouse.snapping.RecipeBookComponentAccessor;
 import dev.isxander.controlify.impl.screenop.behaviours.vanilla.RecipeBookScreenBehaviour;
 import dev.isxander.controlify.impl.utils.MinecraftUtil;
+import dev.isxander.controlify.impl.virtualmouse.SnapUtils;
 import dev.isxander.sdl.SdlGamepad;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
@@ -66,10 +67,9 @@ public class RecipeBookNavigationTests implements FabricClientGameTest {
 			// Require real navigation targets so empty recipes or a closed book
 			// cannot produce a misleading navigation failure.
 			context.waitFor(_ -> recipeBook.isVisible() && page.controlify_test$getTotalPages() > 1);
-			var tabs = context.computeOnClient(_ -> component.controlify$getTabButtons().stream()
-				.filter(tab -> tab.visible).toList());
+			var tabs = context.computeOnClient(_ -> SnapUtils.getVisibleRecipeTabs(component));
 			context.runOnClient(_ -> {
-				if (tabs.size() < 2 || component.controlify$getSelectedTab() != tabs.getFirst()
+				if (tabs.size() < 2 || SnapUtils.getSelectedRecipeTab(component) != tabs.getFirst()
 						|| page.controlify_test$getCurrentPage() != 0) {
 					throw new AssertionError("Expected the first recipe category and page, with multiple visible categories");
 				}
@@ -91,12 +91,12 @@ public class RecipeBookNavigationTests implements FabricClientGameTest {
 			pressAndWait(context,
 				() -> controller.holdAxis(SdlGamepad.SDL_GAMEPAD_AXIS_RIGHT_TRIGGER, 1f),
 				() -> controller.releaseAxis(SdlGamepad.SDL_GAMEPAD_AXIS_RIGHT_TRIGGER),
-				() -> component.controlify$getSelectedTab() == tabs.get(1),
+				() -> SnapUtils.getSelectedRecipeTab(component) == tabs.get(1),
 				"Right trigger should select the next recipe category");
 			pressAndWait(context,
 				() -> controller.holdAxis(SdlGamepad.SDL_GAMEPAD_AXIS_LEFT_TRIGGER, 1f),
 				() -> controller.releaseAxis(SdlGamepad.SDL_GAMEPAD_AXIS_LEFT_TRIGGER),
-				() -> component.controlify$getSelectedTab() == tabs.getFirst(),
+				() -> SnapUtils.getSelectedRecipeTab(component) == tabs.getFirst(),
 				"Left trigger should select the previous recipe category");
 		} finally {
 			controlify.resetSettings();

@@ -288,6 +288,7 @@ public record KeyboardLayout(float width, List<List<Key>> keys) {
 				SHIFT("shift"),
 				SHIFT_LOCK("shift_lock"),
 				ENTER("enter"),
+				DONE("done"),
 				BACKSPACE("backspace"),
 				TAB("tab"),
 				LEFT_ARROW("left_arrow"),

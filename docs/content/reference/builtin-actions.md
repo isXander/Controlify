@@ -108,6 +108,7 @@ keyboard layout [shortcuts](../resource-packs/keyboard-layouts#keys).
 |---|---|---|
 | `controlify:gui_press` | GUI Press | `controlify:regular_screen` |
 | `controlify:gui_back` | GUI Back | `controlify:screen` |
+| `controlify:gui_done` | GUI Done | `controlify:screen` |
 | `controlify:gui_next_tab` | GUI Next Tab | `controlify:screen` |
 | `controlify:gui_prev_tab` | GUI Previous Tab | `controlify:screen` |
 | `controlify:gui_abstract_action_1` | GUI Abstract Action 1 | `controlify:regular_screen` |

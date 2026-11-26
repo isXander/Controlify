@@ -14,8 +14,10 @@ import net.minecraft.client.gui.navigation.ScreenRectangle;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-//? if >=26.3 {
-import com.mojang.renderpearl.api.pipeline.RenderPipeline;
+//? if >=26.4 {
+import net.minecraft.client.gui.GuiPipeline;
+//?} else if >=26.3 {
+//import com.mojang.renderpearl.api.pipeline.RenderPipeline;
 //?} else {
 //import com.mojang.blaze3d.pipeline.RenderPipeline;
 //?}
@@ -25,7 +27,7 @@ public interface CGuiElementRenderState extends GuiElementRenderState {
 	BaseRenderState baseState();
 
 	@Override
-	default @NotNull RenderPipeline pipeline() {
+	default @NotNull /*? if >=26.4 {*/GuiPipeline/*?} else {*//*RenderPipeline*//*?}*/ pipeline() {
 		return baseState().pipeline();
 	}
 

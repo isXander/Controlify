@@ -22,7 +22,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.renderer.RenderPipelines;
+import dev.isxander.controlify.impl.utils.render.GuiPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
@@ -78,13 +78,13 @@ public class KeyWidget extends AbstractWidget implements ElementBehaviour {
 			int x = getX() + 1;
 			int y = getY() + 1;
 			graphics.blitSprite(
-					RenderPipelines.GUI_TEXTURED,
+					GuiPipelines.GUI_TEXTURED,
 					sprite,
 					x, y,
 					renderWidth - 2, renderHeight - 2
 			);
 
-			if (isHoveredOrFocused()) {
+			if ((isHovered() || isFocused())) {
 				graphics.outline(getX() - 1, getY() - 1, renderWidth + 2, renderHeight + 2, 0x80FFFFFF);
 			}
 
@@ -109,7 +109,7 @@ public class KeyWidget extends AbstractWidget implements ElementBehaviour {
 	}
 
 	@Override
-	protected void extractWidgetRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+	protected void extractWidgetRenderState(@NonNull GuiGraphicsExtractor graphics/*? if <26.4 {*//*, int mouseX, int mouseY, float a*//*?}*/) {
 		// custom rendered above
 	}
 
@@ -199,6 +199,7 @@ public class KeyWidget extends AbstractWidget implements ElementBehaviour {
 					}
 
 					case ENTER -> inputConsumer.acceptKeyCode(InputConstants.KEY_RETURN, 0, 0);
+					case DONE -> inputConsumer.done();
 					case BACKSPACE -> inputConsumer.acceptKeyCode(InputConstants.KEY_BACKSPACE, 0, 0);
 					case TAB -> inputConsumer.acceptKeyCode(InputConstants.KEY_TAB, 0, 0);
 					case LEFT_ARROW -> inputConsumer.acceptKeyCode(InputConstants.KEY_LEFT, 0, 0);
@@ -286,6 +287,7 @@ public class KeyWidget extends AbstractWidget implements ElementBehaviour {
 		boolean supportsCharInput = this.keyboard.getInputTarget().supportsCharInput();
 		boolean supportsKeyCodeInput = this.keyboard.getInputTarget().supportsKeyCodeInput();
 		boolean supportsCopying = this.keyboard.getInputTarget().supportsCopying();
+		boolean supportsDone = this.keyboard.getInputTarget().supportsDone();
 
 		return switch (this.getKey().getFunction(shifted)) {
 			case KeyboardLayout.KeyFunction.StringFunc ignored -> supportsCharInput;
@@ -294,6 +296,7 @@ public class KeyWidget extends AbstractWidget implements ElementBehaviour {
 				case ENTER, BACKSPACE, LEFT_ARROW, RIGHT_ARROW, UP_ARROW, DOWN_ARROW -> supportsKeyCodeInput;
 				case TAB, PASTE -> supportsCharInput;
 				case COPY_ALL -> supportsCopying;
+				case DONE -> supportsDone;
 				case SHIFT, SHIFT_LOCK, PREVIOUS_LAYOUT -> true;
 			};
 			case KeyboardLayout.KeyFunction.ChangeLayoutFunc ignored -> true;

@@ -66,7 +66,9 @@ dependencies {
 		exclude(group = "net.fabricmc.fabric-api")
 	}
     fabricApi("dev.isxander:yet-another-config-lib:${property("dep.yacl")}")
-    neoforgeApi("dev.isxander:yet-another-config-lib:${property("dep.yacl-neoforge")}")
+	ifPresent("dep.yacl-neoforge") {
+		neoforgeApi("dev.isxander:yet-another-config-lib:$it")
+	}
 
 	ifPresent("dep.mod-menu") {
 		fabricCompileOnly("maven.modrinth:modmenu:$it")
@@ -181,12 +183,14 @@ manifests {
         customData.putAll(rrlsData)
     }
 
-    neoForgeModsToml(sourceSets.neoforge.get()) {
-        from(commonManifest)
+    ifPresent("dep.neoforge") {
+        neoForgeModsToml(sourceSets.neoforge.get()) {
+            from(commonManifest)
 
-        mixin("controlify-platform.neoforge.mixins.json")
+            mixin("controlify-platform.neoforge.mixins.json")
 
-        modProperties.putAll(rrlsData)
+            modProperties.putAll(rrlsData)
+        }
     }
 }
 
@@ -372,7 +376,8 @@ publishMods {
 	displayName = version.map { "Controlify $it" }
 
     file = tasks.universalJar.flatMap { it.archiveFile }
-    modLoaders.addAll("fabric", "neoforge")
+    modLoaders.add("fabric")
+    ifPresent("dep.neoforge") { modLoaders.add("neoforge") }
 
     modrinth {
         accessToken = providers.environmentVariable("MODRINTH_TOKEN")

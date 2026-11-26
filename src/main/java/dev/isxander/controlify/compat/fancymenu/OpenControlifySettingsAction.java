@@ -8,7 +8,7 @@ package dev.isxander.controlify.compat.fancymenu;
 
 //? if fancy_menu {
 
-import de.keksuccino.fancymenu.customization.action.Action;
+/*import de.keksuccino.fancymenu.customization.action.Action;
 import dev.isxander.controlify.impl.gui.screen.ControlifySettingsScreen;
 import dev.isxander.controlify.impl.utils.MinecraftUtil;
 import net.minecraft.network.chat.Component;
@@ -51,4 +51,4 @@ public class OpenControlifySettingsAction extends Action {
 	}
 
 }
-//?}
+*///?}

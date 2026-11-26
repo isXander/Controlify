@@ -6,7 +6,16 @@
  */
 package dev.isxander.controlify.mixins.feature.virtualmouse.snapping;
 
-import dev.isxander.controlify.api.screenop.SnapPoint;
+//? if >=26.4 {
+import net.minecraft.client.gui.screens.inventory.LoomScreen;
+import org.spongepowered.asm.mixin.Mixin;
+
+/// From 26.4 the pattern buttons are widgets, which are snap targets on their own.
+@Mixin(LoomScreen.class)
+public abstract class LoomScreenMixin {
+}
+//?} else {
+/*import dev.isxander.controlify.api.screenop.SnapPoint;
 import dev.isxander.controlify.impl.screenop.behaviours.screen.AdditionalSnapPointsBehaviour;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.LoomScreen;
@@ -86,3 +95,4 @@ public abstract class LoomScreenMixin extends AbstractContainerScreen<LoomMenu> 
 		}
 	}
 }
+*///?}

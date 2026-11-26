@@ -52,7 +52,7 @@ public final class FallbackKeyboardLayout {
 					k("k"),
 					k("l"),
 					k("'", "\""),
-					k(SpecialFunc.Action.ENTER, 2.0f, ControlifyActions.GUI_ABSTRACT_ACTION_2)
+					k(SpecialFunc.Action.DONE, 2.0f, ControlifyActions.GUI_DONE)
 			),
 			List.of(
 					k(SpecialFunc.Action.SHIFT, 2f, ControlifyActions.GUI_ABSTRACT_ACTION_3),

@@ -6,7 +6,17 @@
  */
 package dev.isxander.controlify.mixins.feature.screenop.impl.container;
 
-import com.llamalad7.mixinextras.expression.Definition;
+//? if >=26.4 {
+import net.minecraft.client.gui.screens.inventory.MerchantScreen;
+import org.spongepowered.asm.mixin.Mixin;
+
+/// From 26.4 the trade list is a ScrollableLayout, which scrolls by pixels, so fractional
+/// virtual mouse scrolling no longer needs accumulating.
+@Mixin(MerchantScreen.class)
+public class MerchantScreenMixin {
+}
+//?} else {
+/*import com.llamalad7.mixinextras.expression.Definition;
 import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -19,13 +29,11 @@ import org.spongepowered.asm.mixin.injection.At;
 public class MerchantScreenMixin {
 	@Unique private double accumulatedScroll = 0;
 
-	/**
-	 * mouseScrolled casts the scroll amount to an integer.
-	 * Controlify vmouse scroll tends to be a decimal between -1 and 1,
-	 * so it ended up always casting to zero.
-	 * Here we accumulate that scroll amount over time and use that, so eventually it will
-	 * be enough to cast to 1 or -1.
-	 */
+	// mouseScrolled casts the scroll amount to an integer.
+	// Controlify vmouse scroll tends to be a decimal between -1 and 1,
+	// so it ended up always casting to zero.
+	// Here we accumulate that scroll amount over time and use that, so eventually it will
+	// be enough to cast to 1 or -1.
 	@ModifyExpressionValue(method = "mouseScrolled", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/inventory/MerchantScreen;canScroll(I)Z"))
 	// target is just before we calculate new scroll offset
 	private boolean accumulateScrolling(boolean canScroll, @Local(ordinal = 3, argsOnly = true) double scrollY) {
@@ -59,3 +67,4 @@ public class MerchantScreenMixin {
 	}
 
 }
+*///?}

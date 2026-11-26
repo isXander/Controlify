@@ -31,6 +31,11 @@ import net.minecraft.client.gui.screens.worldselection.*;
 import net.minecraft.client.input.KeyEvent;
 
 import java.util.Optional;
+//? if >=26.4 {
+import java.util.function.Consumer;
+import net.minecraft.client.gui.components.inventory.SlotGroup;
+import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
+//?}
 
 /// Built-ins use the same registration events as addons. Priorities order whole
 /// groups; explicit chains define ordering within each group.
@@ -72,9 +77,20 @@ public final class BuiltinScreenBehaviours {
 		registry.<ControlifySettingsScreen>register(ControlifySettingsScreen.class, ControlifySettingsScreen.Behaviour::new);
 		registry.<ProfileSelectionScreen>register(ProfileSelectionScreen.class, ProfileSelectionScreen.Behaviour::new);
 		registry.<EnchantmentScreen>register(EnchantmentScreen.class, AdditionalSnapPointsBehaviour::new);
-		registry.<LoomScreen>register(LoomScreen.class, AdditionalSnapPointsBehaviour::new);
+		// from 26.4 loom patterns and stonecutter recipes are widgets, which snap on their own
+		//? if <26.4 {
+		/*registry.<LoomScreen>register(LoomScreen.class, AdditionalSnapPointsBehaviour::new);
 		registry.<StonecutterScreen>register(StonecutterScreen.class, AdditionalSnapPointsBehaviour::new);
+		*///?}
 	}
+
+	//? if >=26.4 {
+	private static final ElementBehaviour NO_SNAP_POINTS = new ElementBehaviour() {
+		@Override
+		public void collectSnapPoints(ScreenContext<?> screen, Consumer<SnapPoint> output, Runnable next) {
+		}
+	};
+	//?}
 
 	private static void registerElements(ScreenopEvents.RegisterElementBehavioursEvent event) {
 		var registry = event.registry();
@@ -94,6 +110,12 @@ public final class BuiltinScreenBehaviours {
 				(slider, editing) -> ((SliderAccessor) slider).controlify$setCanChangeValue(editing)
 		)));
 		registry.register(EditBox.class, DefaultEditBoxBehaviour::new);
+		//? if >=26.4 {
+		// 26.4 made slots and the recipe book widgets; their screen behaviours already place
+		// tuned snap targets on them, so the generic widget targets would only duplicate those
+		registry.register(SlotGroup.class, 200, ignored -> NO_SNAP_POINTS);
+		registry.register(RecipeBookComponent.class, 200, ignored -> NO_SNAP_POINTS);
+		//?}
 		registry.register(KeyWidget.class, key -> key);
 		registry.register(KeyboardWidget.class, keyboard -> keyboard);
 

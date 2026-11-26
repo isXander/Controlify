@@ -55,7 +55,7 @@ public class NameField extends AbstractWidget {
 	}
 
 	@Override
-	protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float tickDelta) {
+	protected void extractWidgetRenderState(GuiGraphicsExtractor graphics/*? if <26.4 {*//*, int mouseX, int mouseY, float tickDelta*//*?}*/) {
 		graphics.fill(this.getX(), this.getY(), this.getRight(), this.getBottom(), 0xFF000000);
 		graphics.outline(this.getX(), this.getY(), this.getWidth(), this.getHeight(), this.isFocused() ? 0xFFFFFFFF : 0xFFA0A0A0);
 		String text = BoatSettings.boatName + (this.isFocused() ? "_" : "");

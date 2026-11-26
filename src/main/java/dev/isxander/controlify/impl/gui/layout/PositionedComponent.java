@@ -11,6 +11,8 @@ import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+//? if >=26.4
+import net.minecraft.client.gui.narration.NarrationTrigger;
 import org.joml.Vector2ic;
 import org.jspecify.annotations.NonNull;
 
@@ -42,7 +44,10 @@ public class PositionedComponent<T extends RenderComponent> implements Renderabl
 	}
 
 	@Override
-	public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+	public void extractRenderState(@NonNull GuiGraphicsExtractor graphics/*? if <26.4 {*//*, int mouseX, int mouseY, float a*//*?}*/) {
+		//? if >=26.4 {
+		float a = graphics.partialTicks();
+		//?}
 		this.extractComponentRenderState(graphics, a);
 	}
 
@@ -73,7 +78,7 @@ public class PositionedComponent<T extends RenderComponent> implements Renderabl
 	}
 
 	@Override
-	public @NonNull NarrationPriority narrationPriority() {
+	public @NonNull NarrationPriority narrationPriority(/*? if >=26.4 {*/NarrationTrigger trigger/*?}*/) {
 		return NarrationPriority.NONE;
 	}
 

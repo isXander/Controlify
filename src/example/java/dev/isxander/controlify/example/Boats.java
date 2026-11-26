@@ -74,7 +74,7 @@ public final class Boats {
 	public static void accelerate(AbstractBoat boat, float amount) {
 		if (boat.getControllingPassenger() instanceof Player driver) {
 			float turn = Mth.degreesDifference(boat.getYRot(), driver.getYRot());
-			boat.setYRot(boat.getYRot() + Mth.clamp(turn, -MAX_TURN_PER_TICK, MAX_TURN_PER_TICK) * amount);
+			boat.setYRot(boat.getYRot() + Math.clamp(turn, -MAX_TURN_PER_TICK, MAX_TURN_PER_TICK) * amount);
 		}
 		Vec3 forward = Vec3.directionFromRotation(0, boat.getYRot());
 		boat.setDeltaMovement(boat.getDeltaMovement().add(forward.scale(0.04 * amount)));
