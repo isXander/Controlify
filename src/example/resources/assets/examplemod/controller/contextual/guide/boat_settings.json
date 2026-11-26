@@ -1,0 +1,16 @@
+{
+  "rules": [
+    {
+      "for": "controlify:gui_press",
+      "where": "left",
+      "if": "examplemod:name_focused",
+      "then": { "translate": "examplemod.guide.type_name" }
+    },
+    {
+      "for": "controlify:gui_press",
+      "where": "left",
+      "if": "examplemod:sensitivity_focused",
+      "then": { "translate": "examplemod.guide.adjust" }
+    }
+  ]
+}

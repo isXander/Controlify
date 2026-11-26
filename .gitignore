@@ -6,3 +6,5 @@ build
 .gradle
 !.gitkeep
 .kotlin
+
+.DS_Store

@@ -1,0 +1,9 @@
+{
+  "tracks": [
+    {
+      "click": {"sharpness": 1.0},
+      "level": 0.7,
+      "requires": "hd"
+    }
+  ]
+}

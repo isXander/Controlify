@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "examplemod",
+  "version": "1.0.0",
+  "name": "Example Mod",
+  "description": "Uses Controlify's API the way the documentation describes it.",
+  "environment": "client",
+  "mixins": [
+    "examplemod.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.3",
+    "fabric-key-mapping-api-v1": "*",
+    "fabric-lifecycle-events-v1": "*"
+  },
+  "breaks": {
+    "controlify": "<4.0.0-"
+  },
+  "entrypoints": {
+    "client": [
+      "dev.isxander.controlify.example.ExampleMod"
+    ],
+    "controlify": [
+      "dev.isxander.controlify.example.ExampleControlifyEntrypoint"
+    ]
+  }
+}

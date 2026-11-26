@@ -1,0 +1,62 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
+package dev.isxander.controlify.impl.platform.main;
+
+import dev.isxander.controlify.api.ControlifyEntrypoint;
+import dev.isxander.controlify.impl.platform.Environment;
+import dev.isxander.controlify.impl.platform.main.events.CommandRegistrationCallbackEvent;
+import dev.isxander.controlify.impl.platform.main.events.HandshakeCompletionEvent;
+import dev.isxander.controlify.impl.platform.main.events.PlayerJoinedEvent;
+import dev.isxander.controlify.impl.platform.network.C2SNetworkApi;
+import dev.isxander.controlify.impl.platform.network.S2CNetworkApi;
+import net.minecraft.core.Registry;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.Identifier;
+import org.apache.commons.io.function.IOSupplier;
+
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
+public interface PlatformMainUtilImpl {
+	void registerCommandRegistrationCallback(CommandRegistrationCallbackEvent callback);
+
+	void registerInitPlayConnectionEvent(PlayerJoinedEvent event);
+
+	boolean isModLoaded(String... modIds);
+
+	Optional<IOSupplier<InputStream>> getModFileInputStream(String modId, String path);
+
+	Path getGameDir();
+
+	Path getConfigDir();
+
+	boolean isDevEnv();
+
+	Environment getEnv();
+
+	String getControlifyVersion();
+
+	void applyToControlifyEntrypoint(Consumer<ControlifyEntrypoint> entrypointConsumer);
+
+	<I, O> void setupServersideHandshake(
+			Identifier handshakeId,
+			StreamCodec<FriendlyByteBuf, I> serverBoundCodec,
+			StreamCodec<FriendlyByteBuf, O> clientBoundCodec,
+			Supplier<O> packetCreator,
+			HandshakeCompletionEvent<I> completionEvent
+	);
+
+	<T> Supplier<T> deferredRegister(Registry<T> registry, Identifier id, Supplier<? extends T> registrant);
+
+	C2SNetworkApi c2sNetworkApi();
+
+	S2CNetworkApi s2cNetworkApi();
+}

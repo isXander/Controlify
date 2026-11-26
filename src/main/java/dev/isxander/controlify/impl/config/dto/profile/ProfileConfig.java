@@ -1,0 +1,40 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
+package dev.isxander.controlify.impl.config.dto.profile;
+
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+
+import java.util.Optional;
+
+public record ProfileConfig(
+		Optional<String> name,
+		Optional<String> controllerUid,
+		GenericControllerConfig generic,
+		InputConfig input,
+		RumbleConfig rumble,
+		HDHapticConfig hdHaptic,
+		LightConfig light,
+		GyroConfig gyro,
+		FlickStickConfig flickStick,
+		BluetoothDeviceConfig bluetoothDevice,
+		DualsenseConfig dualsense
+) {
+	public static final Codec<ProfileConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+			Codec.STRING.optionalFieldOf("name").forGetter(ProfileConfig::name),
+			Codec.STRING.optionalFieldOf("controller_uid").forGetter(ProfileConfig::controllerUid),
+			GenericControllerConfig.CODEC.fieldOf("generic").forGetter(ProfileConfig::generic),
+			InputConfig.CODEC.fieldOf("input").forGetter(ProfileConfig::input),
+			RumbleConfig.CODEC.fieldOf("rumble").forGetter(ProfileConfig::rumble),
+			HDHapticConfig.CODEC.fieldOf("hd_haptic").forGetter(ProfileConfig::hdHaptic),
+			LightConfig.CODEC.fieldOf("light").forGetter(ProfileConfig::light),
+			GyroConfig.CODEC.fieldOf("gyro").forGetter(ProfileConfig::gyro),
+			FlickStickConfig.CODEC.fieldOf("flick_stick").forGetter(ProfileConfig::flickStick),
+			BluetoothDeviceConfig.CODEC.fieldOf("bluetooth_device").forGetter(ProfileConfig::bluetoothDevice),
+			DualsenseConfig.CODEC.fieldOf("dualsense").forGetter(ProfileConfig::dualsense)
+	).apply(instance, ProfileConfig::new));
+}

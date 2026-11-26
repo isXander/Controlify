@@ -23,7 +23,7 @@ public class InputConstantsMixin {
 	}
 }
 //?} else {
-/*@Mixin(dev.isxander.controlify.utils.DummyMixinTarget.class)
+/*@Mixin(dev.isxander.controlify.impl.utils.DummyMixinTarget.class)
 public class InputConstantsMixin {
 }
 *///?}

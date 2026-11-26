@@ -1,0 +1,12 @@
+{
+  "tracks": [
+    {
+      "band": "low",
+      "envelope": [[0, 1], [9.7, 1], [12.85, 0, "out_quad"]]
+    },
+    {
+      "band": "high",
+      "envelope": [[0, 1], [9.7, 1], [12.85, 0, "out_quad"]]
+    }
+  ]
+}

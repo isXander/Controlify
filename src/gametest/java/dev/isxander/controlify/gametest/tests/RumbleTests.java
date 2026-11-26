@@ -19,6 +19,7 @@ import net.minecraft.SharedConstants;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.permissions.PermissionSet;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntitySpawnReason;
@@ -32,6 +33,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /// Tests the various in-game ways that a controller would receive a rumble effect.
 /// To ensure all triggers are working properly.
@@ -52,8 +55,8 @@ public class RumbleTests implements FabricClientGameTest {
 				//? if >=26.2 {
 				world.getWorld().getConnection().waitForChunksRender();
 				//?} else {
-				/*world.getWorld().getClientLevel().waitForChunksRender();
-				*///?}
+				//world.getWorld().getClientLevel().waitForChunksRender();
+				//?}
 
 				runTest(context, controlify, controller, world, "Lightning bolt", this::testLightningBoltRumble);
 				runTest(context, controlify, controller, world, "Explosion", this::testExplosionRumble);
@@ -63,6 +66,8 @@ public class RumbleTests implements FabricClientGameTest {
 				runTest(context, controlify, controller, world, "Slow block", this::testSlowBlock);
 				runTest(context, controlify, controller, world, "Wither spawn", this::testWitherSpawn);
 				runTest(context, controlify, controller, world, "Block breaking", this::testBlockBreaking);
+				runTest(context, controlify, controller, world, "Block breaking (creative)", this::testBlockBreakingCreative);
+				runTest(context, controlify, controller, world, "Feedback command", this::testFeedbackCommand);
 				runTest(context, controlify, controller, world, "Use item", this::testUseItem);
 				runTest(context, controlify, controller, world, "Item break", this::testItemBreak);
 			}
@@ -247,6 +252,75 @@ public class RumbleTests implements FabricClientGameTest {
 		}
 	}
 
+	/// Creative mode breaks blocks instantly through its own code path, so the break only
+	/// rumbles for a few frames. The rumble is watched from another thread so it cannot fall between ticks.
+	private void testBlockBreakingCreative(
+		ClientGameTestContext context,
+		ControlifyGameTestContext controlify,
+		TestControllerContext<?> controller,
+		TestUnitWorldContext world
+	) {
+		var sawRumble = new AtomicBoolean();
+		var stopWatching = new AtomicBoolean();
+		var watcher = new Thread(() -> {
+			while (!stopWatching.get()) {
+				if (controller.state().hasRumble()) {
+					sawRumble.set(true);
+				}
+				try {
+					Thread.sleep(1);
+				} catch (InterruptedException e) {
+					return;
+				}
+			}
+		}, "controlify-creative-rumble-watcher");
+		watcher.setDaemon(true);
+
+		try (var region = world.allocateRegion(5, 5, 5)) {
+			region.runOnServer((_, player) -> player.setGameMode(GameType.CREATIVE));
+
+			var blockPos = new BlockPos(2, 1, 2);
+			region.setBlock(blockPos, Blocks.DIRT);
+
+			context.waitTick();
+
+			context.runOnClient(minecraft ->
+					minecraft.player.lookAt(EntityAnchorArgument.Anchor.EYES, Vec3.atCenterOf(region.absolutePos(blockPos))));
+
+			context.waitTicks(2);
+
+			watcher.start();
+			controller.tapAxis(SdlGamepad.SDL_GAMEPAD_AXIS_RIGHT_TRIGGER, 1f);
+
+			try {
+				context.waitFor(_ -> sawRumble.get());
+			} catch (AssertionError e) {
+				throw new AssertionError("Breaking a block in creative mode never rumbled", e);
+			} finally {
+				stopWatching.set(true);
+				controller.releaseAxis(SdlGamepad.SDL_GAMEPAD_AXIS_RIGHT_TRIGGER);
+				region.runOnServer((_, player) -> player.setGameMode(GameType.SURVIVAL));
+			}
+		}
+	}
+
+	/// The server command chains its clauses in any order, and the packet plays a resource pack effect by id.
+	private void testFeedbackCommand(
+		ClientGameTestContext context,
+		ControlifyGameTestContext controlify,
+		TestControllerContext<?> controller,
+		TestUnitWorldContext world
+	) {
+		try (var region = world.allocateRegion(5, 5, 5)) {
+			region.runOnServer((level, player) -> level.getServer().getCommands().performPrefixedCommand(
+					player.createCommandSourceStack().withPermission(PermissionSet.ALL_PERMISSIONS),
+					"controlify feedback play controlify:explosion to @s param power 6 groups controlify:world origin entity @s"
+			));
+
+			waitForRumble(context, controller);
+		}
+	}
+
 	private void testUseItem(
 		ClientGameTestContext context,
 		ControlifyGameTestContext controlify,
@@ -324,6 +398,12 @@ public class RumbleTests implements FabricClientGameTest {
 		TestControllerContext<?> controller,
 		TestUnitWorldContext world
 	) {
+		controller.releaseAllInputs();
+		context.runOnClient(client -> {
+			if (client.options.keyAttack.isDown() || client.options.keyUse.isDown()) {
+				throw new AssertionError("Attack or use remained held after releasing the virtual controller");
+			}
+		});
 		// Wait for rumble to stop
 		context.waitFor(_ -> !controller.state().hasRumble());
 	}

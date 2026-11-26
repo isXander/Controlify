@@ -1,0 +1,14 @@
+{
+  "tracks": [
+    {
+      "band": "low",
+      "level": 0.3,
+      "scale": { "param": "speed", "from": [0, 1.7] }
+    },
+    {
+      "band": "high",
+      "level": 0.5,
+      "scale": { "param": "speed", "from": [0, 1.7] }
+    }
+  ]
+}

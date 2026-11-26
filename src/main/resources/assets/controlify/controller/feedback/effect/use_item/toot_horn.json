@@ -1,0 +1,12 @@
+{
+  "tracks": [
+    {
+      "band": "low",
+      "envelope": [[0, 0], [0.5, 1]]
+    },
+    {
+      "band": "high",
+      "level": 0.25
+    }
+  ]
+}

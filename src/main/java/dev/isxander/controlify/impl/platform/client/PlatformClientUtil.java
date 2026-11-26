@@ -1,0 +1,100 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
+package dev.isxander.controlify.impl.platform.client;
+
+import dev.isxander.controlify.impl.platform.client.events.DisconnectedEvent;
+import dev.isxander.controlify.impl.platform.client.events.LifecycleEvent;
+import dev.isxander.controlify.impl.platform.client.events.ScreenRenderEvent;
+import dev.isxander.controlify.impl.platform.client.events.TickEvent;
+import dev.isxander.controlify.impl.platform.client.resource.ControlifyReloadListener;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
+import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
+import net.minecraft.client.renderer.state.gui.GuiElementRenderState;
+import net.minecraft.core.Holder;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.Identifier;
+import net.minecraft.tags.TagKey;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Collection;
+import java.util.function.Function;
+
+public final class PlatformClientUtil {
+	public static PlatformClientUtilImpl IMPL = null;
+
+	public static void registerClientTickStarted(TickEvent event) {
+		IMPL.registerClientTickStarted(event);
+	}
+
+	public static void registerClientTickEnded(TickEvent event) {
+		IMPL.registerClientTickEnded(event);
+	}
+
+	public static void registerClientStopping(LifecycleEvent event) {
+		IMPL.registerClientStopping(event);
+	}
+
+	public static void registerClientDisconnected(DisconnectedEvent event) {
+		IMPL.registerClientDisconnected(event);
+	}
+
+	public static void registerClientTagsUpdated(LifecycleEvent event) {
+		IMPL.registerClientTagsUpdated(event);
+	}
+
+	public static void registerAssetReloadListener(ControlifyReloadListener reloadListener) {
+		IMPL.registerAssetReloadListener(reloadListener);
+	}
+
+	public static void registerBuiltinResourcePack(Identifier id, Component displayName) {
+		IMPL.registerBuiltinResourcePack(id, displayName);
+	}
+
+	public static void registerPostScreenRender(ScreenRenderEvent event) {
+		IMPL.registerPostScreenRender(event);
+	}
+
+	public static void addHudLayer(Identifier id, HudRenderLayer layer) {
+		IMPL.addHudLayer(id, layer);
+	}
+
+	public static Collection<KeyMapping> getModdedKeyMappings() {
+		return IMPL.getModdedKeyMappings();
+	}
+
+	public static <I, O> void setupClientsideHandshake(
+			Identifier handshakeId,
+			StreamCodec<FriendlyByteBuf, I> clientBoundCodec,
+			StreamCodec<FriendlyByteBuf, O> serverBoundCodec,
+			Function<I, O> handshakeHandler
+	) {
+		IMPL.setupClientsideHandshake(handshakeId, clientBoundCodec, serverBoundCodec, handshakeHandler);
+	}
+
+	public static CreativeTabHelper createCreativeTabHelper(CreativeModeInventoryScreen creativeScreen) {
+		return IMPL.createCreativeTabHelper(creativeScreen);
+	}
+
+	public static @Nullable ScreenRectangle peekScissorStack(GuiGraphicsExtractor graphics) {
+		return IMPL.peekScissorStack(graphics);
+	}
+
+	public static void submitGuiElement(GuiGraphicsExtractor graphics, GuiElementRenderState guiElement) {
+		IMPL.submitGuiElement(graphics, guiElement);
+	}
+
+	public static <T> boolean isInWithLocalFallback(TagKey<T> tagKey, Holder<T> holder) {
+		return IMPL.isInWithLocalFallback(tagKey, holder);
+	}
+
+	private PlatformClientUtil() {
+	}
+}

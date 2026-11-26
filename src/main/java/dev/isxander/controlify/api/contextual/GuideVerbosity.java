@@ -10,13 +10,14 @@ import com.mojang.serialization.Codec;
 import dev.isxander.yacl3.api.NameableEnum;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.StringRepresentable;
-import org.jspecify.annotations.NonNull;
+import org.jetbrains.annotations.ApiStatus;
 
 public enum GuideVerbosity implements NameableEnum, StringRepresentable {
 	FULL(3),
 	REDUCED(2),
 	MINIMAL(1);
 
+	@ApiStatus.Internal
 	public static final Codec<GuideVerbosity> CODEC = StringRepresentable.fromEnum(GuideVerbosity::values);
 
 	private final int level;
@@ -35,7 +36,7 @@ public enum GuideVerbosity implements NameableEnum, StringRepresentable {
 	}
 
 	@Override
-	public @NonNull String getSerializedName() {
+	public String getSerializedName() {
 		return name().toLowerCase();
 	}
 }

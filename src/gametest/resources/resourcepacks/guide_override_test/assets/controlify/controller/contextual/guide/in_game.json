@@ -1,0 +1,53 @@
+{
+  "replace": true,
+  "rules": [
+    {
+      "for": "controlify:jump",
+      "where": "left",
+      "if": true,
+      "then": {
+        "text": "jump"
+      }
+    },
+    {
+      "for": "controlify:sneak",
+      "where": "left",
+      "if": true,
+      "then": {
+        "text": "sneak"
+      }
+    },
+    {
+      "for": "controlify:drop",
+      "where": "left",
+      "if": true,
+      "then": {
+        "text": "drop"
+      }
+    },
+    {
+      "for": "controlify:inventory",
+      "where": "right",
+      "if": true,
+      "then": {
+        "text": "inventory"
+      }
+    },
+    {
+      "for": "controlify:attack",
+      "where": "right",
+      "if": true,
+      "then": {
+        "text": "attack"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": true,
+      "then": {
+        "text": "use"
+      }
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "rules": [
+    {
+      "for": "controlify:ambient",
+      "if": "examplemod:boosting",
+      "then": "examplemod:boost"
+    },
+    {
+      "for": "controlify:ambient",
+      "if": "examplemod:in_boat",
+      "then": "examplemod:boat_tint"
+    }
+  ]
+}

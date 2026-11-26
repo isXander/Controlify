@@ -7,7 +7,7 @@
 package dev.isxander.controlify.mixins.feature.reacharound;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import dev.isxander.controlify.reacharound.ReachAroundHandler;
+import dev.isxander.controlify.impl.reacharound.ReachAroundHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.HitResult;

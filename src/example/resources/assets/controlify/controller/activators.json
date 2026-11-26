@@ -1,0 +1,5 @@
+{
+  "examplemod:horn": { "type": "pulse", "gesture": "tap", "editable": true },
+  "examplemod:boost": "span",
+  "examplemod:throttle": "continuous"
+}

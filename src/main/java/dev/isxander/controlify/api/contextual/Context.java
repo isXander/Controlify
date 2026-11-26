@@ -6,10 +6,10 @@
  */
 package dev.isxander.controlify.api.contextual;
 
-import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.api.controller.Controller;
 
 public interface Context {
-	ControllerEntity controller();
+	Controller controller();
 
 	GuideVerbosity verbosity();
 }

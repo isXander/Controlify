@@ -1,27 +1,25 @@
 {
-  "package": "dev.isxander.controlify.compatibility.sodium.mixins",
+  "package": "dev.isxander.controlify.compat.sodium.mixins",
   "required": false,
   "minVersion": "0.8",
   "mixinextras": {
     "minVersion": "0.5.0"
   },
   "injectors": {
-    "defaultRequire": 1
+    "defaultRequire": 0
   },
   "overwrites": {
     "requireAnnotations": true
   },
-  "plugin": "dev.isxander.controlify.compatibility.sodium.SodiumMixinPlugin",
+  "plugin": "dev.isxander.controlify.compat.sodium.SodiumMixinPlugin",
   "compatibilityLevel": "JAVA_25",
   "client": [
-    "VideoSettingsScreenMixin"
-  ],
-  "mixins": [
     "AbstractWidgetMixin",
     "CycleControlElementMixin",
     "FlatButtonWidgetAccessor",
     "FlatButtonWidgetMixin",
     "SliderControlElementMixin",
-    "TickBoxControlElementMixin"
+    "TickBoxControlElementMixin",
+    "VideoSettingsScreenMixin"
   ]
 }

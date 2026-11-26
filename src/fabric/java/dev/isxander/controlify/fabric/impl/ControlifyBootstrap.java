@@ -1,0 +1,38 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
+package dev.isxander.controlify.fabric.impl;
+
+import dev.isxander.controlify.impl.Controlify;
+import dev.isxander.controlify.fabric.impl.platform.client.FabricPlatformClientImpl;
+import dev.isxander.controlify.fabric.impl.platform.FabricPlatformMainImpl;
+import dev.isxander.controlify.impl.platform.client.PlatformClientUtil;
+import dev.isxander.controlify.impl.platform.main.PlatformMainUtil;
+import dev.isxander.controlify.impl.server.ControlifyServer;
+import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.api.DedicatedServerModInitializer;
+import net.fabricmc.api.ModInitializer;
+
+public class ControlifyBootstrap implements ClientModInitializer, ModInitializer, DedicatedServerModInitializer {
+	@Override
+	public void onInitializeClient() {
+		PlatformClientUtil.IMPL = new FabricPlatformClientImpl();
+		dev.isxander.controlify.impl.screenop.BuiltinScreenBehaviours.initialize();
+		PlatformMainUtil.invokeControlifyEntrypoints();
+		Controlify.instance().preInitialiseControlify();
+	}
+
+	@Override
+	public void onInitializeServer() {
+		ControlifyServer.getInstance().onInitializeServer();
+	}
+
+	@Override
+	public void onInitialize() {
+		PlatformMainUtil.IMPL = new FabricPlatformMainImpl();
+		ControlifyServer.getInstance().onInitialize();
+	}
+}

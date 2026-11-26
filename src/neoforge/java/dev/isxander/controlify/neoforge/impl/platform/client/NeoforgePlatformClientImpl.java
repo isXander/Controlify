@@ -1,0 +1,170 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
+package dev.isxander.controlify.neoforge.impl.platform.client;
+
+import dev.isxander.controlify.neoforge.impl.platform.VanillaKeyMappingHolder;
+import dev.isxander.controlify.impl.platform.client.CreativeTabHelper;
+import dev.isxander.controlify.impl.platform.client.HudRenderLayer;
+import dev.isxander.controlify.impl.platform.client.PlatformClientUtilImpl;
+import dev.isxander.controlify.impl.platform.client.events.DisconnectedEvent;
+import dev.isxander.controlify.impl.platform.client.events.LifecycleEvent;
+import dev.isxander.controlify.impl.platform.client.events.ScreenRenderEvent;
+import dev.isxander.controlify.impl.platform.client.events.TickEvent;
+import dev.isxander.controlify.impl.platform.client.resource.ControlifyReloadListener;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.Options;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
+import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
+import net.minecraft.client.renderer.state.gui.GuiElementRenderState;
+import net.minecraft.core.Holder;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.repository.Pack;
+import net.minecraft.server.packs.repository.PackSource;
+import net.minecraft.tags.TagKey;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModLoadingContext;
+import net.neoforged.neoforge.client.event.*;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.AddPackFindersEvent;
+import net.neoforged.neoforge.event.GameShuttingDownEvent;
+import net.neoforged.neoforge.event.TagsUpdatedEvent;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.function.Function;
+
+public class NeoforgePlatformClientImpl implements PlatformClientUtilImpl {
+	private @Nullable Collection<KeyMapping> moddedKeyMappings;
+
+	@Override
+	public void registerClientTickStarted(TickEvent event) {
+		NeoForge.EVENT_BUS.<ClientTickEvent.Pre>addListener(e -> {
+			event.onTick(Minecraft.getInstance());
+		});
+	}
+
+	@Override
+	public void registerClientTickEnded(TickEvent event) {
+		NeoForge.EVENT_BUS.<ClientTickEvent.Post>addListener(e -> {
+			event.onTick(Minecraft.getInstance());
+		});
+	}
+
+	@Override
+	public void registerClientStopping(LifecycleEvent event) {
+		NeoForge.EVENT_BUS.<GameShuttingDownEvent>addListener(e -> {
+			event.onLifecycle(Minecraft.getInstance());
+		});
+	}
+
+	@Override
+	public void registerClientDisconnected(DisconnectedEvent event) {
+		NeoForge.EVENT_BUS.<ClientPlayerNetworkEvent.LoggingOut>addListener(e -> {
+			event.onDisconnected(Minecraft.getInstance());
+		});
+	}
+
+	@Override
+	public void registerClientTagsUpdated(LifecycleEvent event) {
+		NeoForge.EVENT_BUS.<TagsUpdatedEvent.ClientPacketReceived>addListener(e -> {
+			event.onLifecycle(Minecraft.getInstance());
+		});
+	}
+
+	@Override
+	public void registerAssetReloadListener(ControlifyReloadListener reloadListener) {
+		getModEventBus().<AddClientReloadListenersEvent>addListener(e -> {
+			e.addListener(reloadListener.getReloadId(), reloadListener);
+		});
+	}
+
+	@Override
+	public void registerBuiltinResourcePack(Identifier id, Component displayName) {
+		Identifier packLocation = id.withPrefix("resourcepacks/");
+
+		getModEventBus().<AddPackFindersEvent>addListener(e -> {
+			e.addPackFinders(
+					packLocation,
+					PackType.CLIENT_RESOURCES,
+					displayName,
+					PackSource.BUILT_IN,
+					false,
+					Pack.Position.TOP
+			);
+		});
+	}
+
+	@Override
+	public void addHudLayer(Identifier id, HudRenderLayer renderLayer) {
+		getModEventBus().addListener(
+				RegisterGuiLayersEvent.class,
+				e -> e.registerAboveAll(id, renderLayer::render)
+		);
+	}
+
+	@Override
+	public void registerPostScreenRender(ScreenRenderEvent event) {
+		NeoForge.EVENT_BUS.<ScreenEvent.Render.Post>addListener(e -> {
+			event.onRender(e.getScreen(), e.getGuiGraphics(), e.getMouseX(), e.getMouseY(), e.getPartialTick());
+		});
+	}
+
+	@Override
+	public Collection<KeyMapping> getModdedKeyMappings() {
+		if (moddedKeyMappings == null)
+			moddedKeyMappings = calculateModdedKeyMappings();
+		return moddedKeyMappings;
+	}
+
+	private Collection<KeyMapping> calculateModdedKeyMappings() {
+		Options options = Minecraft.getInstance().options;
+		KeyMapping[] vanillaAndModded = options.keyMappings;
+		List<KeyMapping> vanillaOnly = Arrays.asList(((VanillaKeyMappingHolder) options).controlify$getVanillaKeys());
+
+		return Arrays.stream(vanillaAndModded)
+				.filter(key -> !vanillaOnly.contains(key))
+				.toList();
+	}
+
+	@Override
+	public <I, O> void setupClientsideHandshake(Identifier handshakeId, StreamCodec<FriendlyByteBuf, I> clientBoundCodec, StreamCodec<FriendlyByteBuf, O> serverBoundCodec, Function<I, O> handshakeHandler) {
+		// TODO
+	}
+
+	@Override
+	public CreativeTabHelper createCreativeTabHelper(CreativeModeInventoryScreen creativeScreen) {
+		return new NeoforgeCreativeTabHelper(creativeScreen);
+	}
+
+	@Override
+	public @Nullable ScreenRectangle peekScissorStack(GuiGraphicsExtractor graphics) {
+		return graphics.peekScissorStack();
+	}
+
+	@Override
+	public void submitGuiElement(GuiGraphicsExtractor graphics, GuiElementRenderState guiElement) {
+		graphics.submitGuiElementRenderState(guiElement);
+	}
+
+	@Override
+	public <T> boolean isInWithLocalFallback(TagKey<T> tagKey, Holder<T> holder) {
+		// NeoForge has no ClientTags api
+		return holder.is(tagKey);
+	}
+
+	private IEventBus getModEventBus() {
+		return ModLoadingContext.get().getActiveContainer().getEventBus();
+	}
+}

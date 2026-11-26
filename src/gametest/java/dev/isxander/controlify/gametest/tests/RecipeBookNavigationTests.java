@@ -6,14 +6,15 @@
  */
 package dev.isxander.controlify.gametest.tests;
 
-import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.InputMode;
+import dev.isxander.controlify.impl.Controlify;
+import dev.isxander.controlify.api.InputMode;
 import dev.isxander.controlify.gametest.framework.TestUnitWorldContext;
 import dev.isxander.controlify.gametest.framework.controller.ControlifyGameTestContext;
 import dev.isxander.controlify.gametest.mixin.RecipeBookPageAccessor;
+import dev.isxander.controlify.impl.screenop.ScreenRuntime;
 import dev.isxander.controlify.mixins.feature.virtualmouse.snapping.RecipeBookComponentAccessor;
-import dev.isxander.controlify.screenop.compat.vanilla.RecipeBookScreenProcessor;
-import dev.isxander.controlify.utils.MinecraftUtil;
+import dev.isxander.controlify.impl.screenop.behaviours.vanilla.RecipeBookScreenBehaviour;
+import dev.isxander.controlify.impl.utils.MinecraftUtil;
 import dev.isxander.sdl.SdlGamepad;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
@@ -46,7 +47,7 @@ public class RecipeBookNavigationTests implements FabricClientGameTest {
 			context.runOnClient(client -> {
 				client.player.getRecipeBook().setOpen(RecipeBookType.CRAFTING, true);
 				client.player.getRecipeBook().setFiltering(RecipeBookType.CRAFTING, false);
-				Controlify.instance().setCurrentController(controller.getControllerEntity(), true);
+				Controlify.instance().setCurrentController(controller.getControllerImpl(), true);
 				Controlify.instance().setInputMode(InputMode.CONTROLLER);
 			});
 			region.runOnServer((level, player) -> {
@@ -56,7 +57,7 @@ public class RecipeBookNavigationTests implements FabricClientGameTest {
 			context.waitForScreen(CraftingScreen.class);
 
 			var recipeBook = context.computeOnClient(_ ->
-				((RecipeBookScreenProcessor.RecipeBookScreenAccessor) MinecraftUtil.getScreen())
+				((RecipeBookScreenBehaviour.RecipeBookScreenAccessor) MinecraftUtil.getScreen())
 					.controlify$getRecipeBookComponent());
 			var component = (RecipeBookComponentAccessor) recipeBook;
 			var page = context.computeOnClient(_ ->
@@ -72,7 +73,7 @@ public class RecipeBookNavigationTests implements FabricClientGameTest {
 						|| page.controlify_test$getCurrentPage() != 0) {
 					throw new AssertionError("Expected the first recipe category and page, with multiple visible categories");
 				}
-				if (!Controlify.instance().virtualMouseHandler().isVirtualMouseEnabled()) {
+				if (ScreenRuntime.virtualMouse().isEmpty()) {
 					throw new AssertionError("Crafting screen must have virtual mouse enabled for recipe navigation");
 				}
 			});

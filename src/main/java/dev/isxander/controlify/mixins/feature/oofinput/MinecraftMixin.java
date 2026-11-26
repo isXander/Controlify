@@ -7,7 +7,7 @@
 package dev.isxander.controlify.mixins.feature.oofinput;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.impl.Controlify;
 import net.minecraft.client.Minecraft;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;

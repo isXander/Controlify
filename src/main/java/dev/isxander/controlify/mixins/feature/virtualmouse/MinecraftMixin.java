@@ -6,21 +6,18 @@
  */
 package dev.isxander.controlify.mixins.feature.virtualmouse;
 
-import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
+import dev.isxander.controlify.impl.screenop.ScreenRuntime;
 import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.Optional;
 
 @Mixin(Minecraft.class)
 public class MinecraftMixin {
 	@Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;handleAccumulatedMovement()V"))
 	private void onUpdateMouse(boolean advanceGameTime, CallbackInfo ci) {
-		Optional.ofNullable(Controlify.instance().virtualMouseHandler())
-				.ifPresent(VirtualMouseHandler::updateMouse);
+		ScreenRuntime.update();
 	}
 }

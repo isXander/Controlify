@@ -14,8 +14,8 @@
   },
   "mixins": [
     "ControlifySettingsAccessor",
-    "SDLControllerManagerAccessor",
-    "SDLControllerManagerMixin"
+    "SDLControllerBackendAccessor",
+    "SDLControllerBackendMixin"
   ],
   "client": [
     "RecipeBookPageAccessor",

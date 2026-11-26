@@ -9,9 +9,7 @@ package dev.isxander.controlify.mixins.feature.screenop.impl.outofgame;
 import com.llamalad7.mixinextras.expression.Definition;
 import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import dev.isxander.controlify.screenop.ScreenProcessor;
-import dev.isxander.controlify.screenop.ScreenProcessorProvider;
-import dev.isxander.controlify.screenop.compat.vanilla.JoinMultiplayerScreenProcessor;
+import dev.isxander.controlify.impl.screenop.behaviours.vanilla.JoinMultiplayerScreenBehaviour;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
@@ -21,20 +19,13 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(JoinMultiplayerScreen.class)
-public class JoinMultiplayerScreenMixin implements ScreenProcessorProvider {
-	@Shadow protected ServerSelectionList serverSelectionList;
+public class JoinMultiplayerScreenMixin implements JoinMultiplayerScreenBehaviour.Access {
+	@Shadow
+	protected ServerSelectionList serverSelectionList;
 
 	@Unique private Button backButton;
 	@Unique private Button directConnectButton;
 	@Unique private Button addServerButton;
-
-	@Unique private final JoinMultiplayerScreenProcessor processor = new JoinMultiplayerScreenProcessor(
-			(JoinMultiplayerScreen) (Object) this,
-			() -> this.serverSelectionList,
-			() -> this.backButton,
-			() -> this.directConnectButton,
-			() -> this.addServerButton
-	);
 
 	@Definition(id = "builder", method = "Lnet/minecraft/client/gui/components/Button;builder(Lnet/minecraft/network/chat/Component;Lnet/minecraft/client/gui/components/Button$OnPress;)Lnet/minecraft/client/gui/components/Button$Builder;")
 	@Definition(id = "build", method = "Lnet/minecraft/client/gui/components/Button$Builder;build()Lnet/minecraft/client/gui/components/Button;")
@@ -64,7 +55,22 @@ public class JoinMultiplayerScreenMixin implements ScreenProcessorProvider {
 	}
 
 	@Override
-	public ScreenProcessor<?> screenProcessor() {
-		return processor;
+	public ServerSelectionList controlify$getServerList() {
+		return this.serverSelectionList;
+	}
+
+	@Override
+	public Button controlify$getBackButton() {
+		return this.backButton;
+	}
+
+	@Override
+	public Button controlify$getDirectConnectButton() {
+		return this.directConnectButton;
+	}
+
+	@Override
+	public Button controlify$getAddServerButton() {
+		return this.addServerButton;
 	}
 }

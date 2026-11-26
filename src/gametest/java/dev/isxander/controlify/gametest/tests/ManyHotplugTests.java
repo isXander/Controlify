@@ -29,7 +29,7 @@ public class ManyHotplugTests implements FabricClientGameTest {
 				context.waitTicks(3);
 
 				// finds within ControllerManager if it exists
-				controller.getControllerEntity();
+				controller.getControllerImpl();
 			}
 			CTestUtil.clearToasts(context);
 		}

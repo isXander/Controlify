@@ -27,86 +27,86 @@ public class TestControllerState<E> implements TestControllerStateView<E> {
 	}
 
 	@Override
-	public int getPlayerIndex() {
+	public synchronized int getPlayerIndex() {
 		return this.playerIndex;
 	}
 
-	public void setPlayerIndex(int playerIndex) {
+	public synchronized void setPlayerIndex(int playerIndex) {
 		this.playerIndex = playerIndex;
 	}
 
 	@Override
-	public short getLowFrequencyRumble() {
+	public synchronized short getLowFrequencyRumble() {
 		return this.lowFrequencyRumble;
 	}
 
 	@Override
-	public short getHighFrequencyRumble() {
+	public synchronized short getHighFrequencyRumble() {
 		return highFrequencyRumble;
 	}
 
-	public void setRumble(short lowFrequencyRumble, short highFrequencyRumble) {
+	public synchronized void setRumble(short lowFrequencyRumble, short highFrequencyRumble) {
 		this.lowFrequencyRumble = lowFrequencyRumble;
 		this.highFrequencyRumble = highFrequencyRumble;
 	}
 
 	@Override
-	public short getLeftTriggerRumble() {
+	public synchronized short getLeftTriggerRumble() {
 		return leftTriggerRumble;
 	}
 
 	@Override
-	public short getRightTriggerRumble() {
+	public synchronized short getRightTriggerRumble() {
 		return rightTriggerRumble;
 	}
 
-	public void setTriggerRumble(short leftTriggerRumble, short rightTriggerRumble) {
+	public synchronized void setTriggerRumble(short leftTriggerRumble, short rightTriggerRumble) {
 		this.leftTriggerRumble = leftTriggerRumble;
 		this.rightTriggerRumble = rightTriggerRumble;
 	}
 
 	@Override
-	public byte getLedRed() {
+	public synchronized byte getLedRed() {
 		return ledRed;
 	}
 
 	@Override
-	public byte getLedGreen() {
+	public synchronized byte getLedGreen() {
 		return ledGreen;
 	}
 
 	@Override
-	public byte getLedBlue() {
+	public synchronized byte getLedBlue() {
 		return ledBlue;
 	}
 
-	public void setLed(byte red, byte green, byte blue) {
+	public synchronized void setLed(byte red, byte green, byte blue) {
 		this.ledRed = red;
 		this.ledGreen = green;
 		this.ledBlue = blue;
 	}
 
 	@Override
-	public @Nullable ByteBuffer getLatestEffect() {
+	public synchronized @Nullable ByteBuffer getLatestEffect() {
 		return latestEffect;
 	}
 
-	public void setLatestEffect(@NotNull ByteBuffer latestEffect) {
+	public synchronized void setLatestEffect(@NotNull ByteBuffer latestEffect) {
 		this.latestEffect = latestEffect;
 		this.effectState = this.effectDriver.receiveEffect(latestEffect);
 	}
 
 	@Override
-	public @Nullable E getGamepadEffectState() {
+	public synchronized @Nullable E getGamepadEffectState() {
 		return effectState;
 	}
 
 	@Override
-	public boolean getSensorsEnabled() {
+	public synchronized boolean getSensorsEnabled() {
 		return sensorsEnabled;
 	}
 
-	public void setSensorsEnabled(boolean sensorsEnabled) {
+	public synchronized void setSensorsEnabled(boolean sensorsEnabled) {
 		this.sensorsEnabled = sensorsEnabled;
 	}
 }

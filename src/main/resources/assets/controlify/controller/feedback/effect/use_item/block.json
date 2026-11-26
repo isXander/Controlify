@@ -1,0 +1,8 @@
+{
+  "tracks": [
+    {
+      "band": "high",
+      "lfo": {"period": 0.2, "shape": "saw", "min": 0.05, "max": 0.17}
+    }
+  ]
+}

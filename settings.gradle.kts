@@ -15,7 +15,10 @@ pluginManagement {
             }
         }
         exclusiveContent {
-            forRepository { maven("https://maven.kikugie.dev/releases") }
+            forRepositories(
+				maven("https://maven.kikugie.dev/releases"),
+				maven("https://maven.kikugie.dev/snapshots")
+			)
             filter { includeGroupAndSubgroups("dev.kikugie") }
         }
         exclusiveContent {
@@ -28,7 +31,7 @@ pluginManagement {
 }
 
 plugins {
-    id("dev.kikugie.stonecutter") version "0.9.7"
+    id("dev.kikugie.stonecutter") version "0.10-beta.1"
     id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
 

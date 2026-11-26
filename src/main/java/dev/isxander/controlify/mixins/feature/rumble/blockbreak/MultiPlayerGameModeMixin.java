@@ -8,15 +8,13 @@ package dev.isxander.controlify.mixins.feature.rumble.blockbreak;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
-import dev.isxander.controlify.api.ControlifyApi;
-import dev.isxander.controlify.rumble.ContinuousRumbleEffect;
-import dev.isxander.controlify.rumble.RumbleSource;
-import dev.isxander.controlify.rumble.RumbleState;
-import dev.isxander.controlify.utils.Easings;
+import dev.isxander.controlify.impl.feedback.BuiltinFeedback;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -27,7 +25,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(MultiPlayerGameMode.class)
 public class MultiPlayerGameModeMixin {
-	@Unique private ContinuousRumbleEffect blockBreakRumble = null;
+	/// The block the held rumble is for, so that ticks of mining the same block keep the one playback going.
+	@Unique private BlockPos controlify$rumblePos;
+	@Unique private Block controlify$rumbleBlock;
 
 	@Inject(
 			method = "lambda$startDestroyBlock$1",
@@ -35,9 +35,10 @@ public class MultiPlayerGameModeMixin {
 	)
 	private void onStartBreakingBlock(
 		CallbackInfoReturnable<Packet<?>> cir,
-		@Local(argsOnly = true, name = "state") BlockState state
+		@Local(argsOnly = true, name = "state") BlockState state,
+		@Local(argsOnly = true, name = "pos") BlockPos pos
 	) {
-		startRumble(state);
+		startRumble(state, pos);
 	}
 
 	@Inject(
@@ -46,11 +47,30 @@ public class MultiPlayerGameModeMixin {
 	)
 	private void onInstabreakBlockSurvival(
 		CallbackInfoReturnable<Packet<?>> cir,
-		@Local(argsOnly = true, name = "state") BlockState state
+		@Local(argsOnly = true, name = "state") BlockState state,
+		@Local(argsOnly = true, name = "pos") BlockPos pos
 	) {
-		startRumble(state);
+		startRumble(state, pos);
 		// won't stop until 1 tick
 		stopRumble();
+	}
+
+	/// Creative mode takes its own branch that never reaches the survival lambda above.
+	@Inject(
+			method = "startDestroyBlock",
+			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;startPrediction(Lnet/minecraft/client/multiplayer/ClientLevel;Lnet/minecraft/client/multiplayer/prediction/PredictiveAction;)V", ordinal = 0)
+	)
+	private void onStartBreakingBlockCreative(BlockPos pos, Direction direction, CallbackInfoReturnable<Boolean> cir, @Local BlockState state) {
+		creativeBreak(state, pos);
+	}
+
+	/// Creative mode breaks every few ticks while the button is held.
+	@Inject(
+			method = "continueDestroyBlock",
+			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;startPrediction(Lnet/minecraft/client/multiplayer/ClientLevel;Lnet/minecraft/client/multiplayer/prediction/PredictiveAction;)V", ordinal = 0)
+	)
+	private void onContinueBreakingBlockCreative(BlockPos pos, Direction direction, CallbackInfoReturnable<Boolean> cir, @Local BlockState state) {
+		creativeBreak(state, pos);
 	}
 
 	@Inject(method = "stopDestroyBlock", at = @At("RETURN"))
@@ -64,32 +84,39 @@ public class MultiPlayerGameModeMixin {
 	}
 
 	@ModifyExpressionValue(method = "continueDestroyBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;isAir()Z"))
-	private boolean onAbortBreakingBlock(boolean original) {
-		if (original)
+	private boolean onContinueBreakingBlock(boolean isAir, @Local(argsOnly = true, name = "pos") BlockPos pos, @Local(name = "state") BlockState state) {
+		if (isAir) {
 			stopRumble();
+		} else {
+			// still mining this block: keep the held rumble alive
+			startRumble(state, pos);
+		}
 
-		return original;
+		return isAir;
 	}
 
-	@Unique private void startRumble(BlockState state) {
+	@Unique private void creativeBreak(BlockState state, BlockPos pos) {
+		if (state.isAir()) {
+			return;
+		}
+		// breaks instantly, so it is felt as a single short pulse like an instantly mined block
+		startRumble(state, pos);
 		stopRumble();
+	}
 
-		var effect = ContinuousRumbleEffect.builder()
-				.byTick(tick -> new RumbleState(
-						0.02f + (float)Easings.easeInQuad(Math.min(1, state.getBlock().defaultDestroyTime() / 20f)) * 0.25f,
-						0.01f
-				))
-				.minTime(1)
-				.build();
-
-		blockBreakRumble = effect;
-		ControlifyApi.get().playRumbleEffect(RumbleSource.INTERACTION, effect);
+	@Unique private void startRumble(BlockState state, BlockPos pos) {
+		// a new block starts a fresh playback and the previous one ends; the same block keeps its playback
+		if (!pos.equals(this.controlify$rumblePos) || state.getBlock() != this.controlify$rumbleBlock) {
+			BuiltinFeedback.BLOCK_BREAK.release();
+			this.controlify$rumblePos = pos.immutable();
+			this.controlify$rumbleBlock = state.getBlock();
+		}
+		BuiltinFeedback.BLOCK_BREAK.hold(new BuiltinFeedback.BlockBreak(state.getBlock().defaultDestroyTime()));
 	}
 
 	@Unique private void stopRumble() {
-		if (blockBreakRumble != null) {
-			blockBreakRumble.stop();
-			blockBreakRumble = null;
-		}
+		this.controlify$rumblePos = null;
+		this.controlify$rumbleBlock = null;
+		BuiltinFeedback.BLOCK_BREAK.release();
 	}
 }

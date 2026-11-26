@@ -1,0 +1,239 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
+package dev.isxander.controlify.impl.gui.font;
+
+import com.google.common.collect.ImmutableMap;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.JsonOps;
+import dev.isxander.controlify.api.action.Action;
+import dev.isxander.controlify.api.action.ActionBinding;
+import dev.isxander.controlify.api.action.Gesture;
+import dev.isxander.controlify.impl.action.ActionImpl;
+import dev.isxander.controlify.api.input.LogicalInput;
+import dev.isxander.controlify.impl.controllermanager.ControllerType;
+import dev.isxander.controlify.impl.platform.client.resource.SimpleControlifyReloadListener;
+import dev.isxander.controlify.impl.utils.CUtil;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FontDescription;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.FileToIdConverter;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.util.ExtraCodecs;
+import org.jetbrains.annotations.Nullable;
+
+import java.io.BufferedReader;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+public class InputFontMapper implements SimpleControlifyReloadListener<InputFontMapper.Preparations> {
+	private ImmutableMap<Identifier, FontMap> mappings = ImmutableMap.of();
+	/// Never null: an empty map stands in until, or if, the default font mapping is missing.
+	private FontMap defaultFontMap = emptyFontMap();
+
+	/// One or more characters of the glyph set's font, rendered in sequence.
+	private static final Codec<String> GLYPHS_CODEC = ExtraCodecs.NON_EMPTY_STRING;
+
+	private static final Codec<Map<Identifier, String>> FONT_MAP_CODEC = Codec.unboundedMap(Identifier.CODEC, GLYPHS_CODEC);
+
+	private static final FileToIdConverter fileToIdConverter = FileToIdConverter.json("controller/font_mapping");
+
+	@Override
+	public CompletableFuture<Preparations> load(ResourceManager manager, Executor executor) {
+		return CompletableFuture.supplyAsync(() -> {
+			Map<Identifier, Resource> mappingResources = fileToIdConverter.listMatchingResources(manager);
+			Map<Identifier, FontMap> mappings = mappingResources.entrySet().stream().flatMap(entry -> {
+				Identifier rl = entry.getKey();
+				Resource resource = entry.getValue();
+
+				Identifier namespace = fileToIdConverter.fileToId(rl);
+				try (BufferedReader reader = resource.openAsReader()) {
+					JsonElement element = JsonParser.parseReader(reader);
+					FontMap map = FONT_MAP_CODEC.parse(JsonOps.INSTANCE, element)
+							.resultOrPartial(CUtil.LOGGER::error)
+							.map(glyphs -> new FontMap(namespace, glyphs))
+							.orElse(null);
+					if (map != null) {
+						return Stream.of(Pair.of(namespace, map));
+					}
+				} catch (Exception e) {
+					CUtil.LOGGER.error("Failed to load font mappings for id {}", namespace, e);
+				}
+
+				return Stream.empty();
+			}).collect(Collectors.toMap(Pair::getFirst, Pair::getSecond));
+
+			return new Preparations(mappings);
+		});
+	}
+
+	@Override
+	public CompletableFuture<Void> apply(Preparations data, ResourceManager manager, Executor executor) {
+		return CompletableFuture.runAsync(() -> {
+			ImmutableMap.Builder<Identifier, FontMap> builder = ImmutableMap.builder();
+			data.mappings().forEach(builder::put);
+			mappings = builder.build();
+			FontMap loadedDefault = mappings.get(ControllerType.DEFAULT.id());
+			if (loadedDefault == null) {
+				CUtil.LOGGER.error("No default input font mapping ({}) was loaded; input glyphs will be unknown", ControllerType.DEFAULT.id());
+			}
+			defaultFontMap = loadedDefault != null ? loadedDefault : emptyFontMap();
+		}, executor);
+	}
+
+	private static FontMap emptyFontMap() {
+		return new FontMap(ControllerType.DEFAULT.id(), Map.of());
+	}
+
+	public FontMap getMappings(Identifier namespace) {
+		return mappings.getOrDefault(namespace, defaultFontMap);
+	}
+
+	/// The action's primary binding, as shown in prompts.
+	public MutableComponent getComponentFromAction(Identifier namespace, @Nullable Action action) {
+		if (action == null || action.bindings().isEmpty()) {
+			// TODO: implement some sort of "unbound" character
+			return Component.literal("?");
+		}
+
+		ActionBinding primary = action.bindings().getFirst();
+		Optional<Gesture> gesture = action instanceof ActionImpl impl
+				? impl.activatorConfig().displayGesture(primary)
+				: Optional.empty();
+		return getComponentFromBinding(namespace, primary, gesture);
+	}
+
+	/// The binding's input glyph followed by the badge for {@code gesture}, if it has one.
+	public MutableComponent getComponentFromBinding(Identifier namespace, @Nullable ActionBinding binding, Optional<Gesture> gesture) {
+		if (binding == null) {
+			return getComponentFromInput(namespace, null);
+		}
+		var input = getComponentFromInput(namespace, binding.input());
+		return gesture.flatMap(shown -> gestureBadge(getMappings(namespace), shown))
+				.map(badge -> Component.empty().append(input).append(badge))
+				.orElse(input);
+	}
+
+	/// Whether a badge is drawn for this gesture in the given glyph set.
+	public boolean hasGestureBadge(Identifier namespace, Gesture gesture) {
+		return gestureBadge(getMappings(namespace), gesture).isPresent();
+	}
+
+	/// The glyphs mapped to `controlify:gesture/<name>`. A glyph set positions them itself, usually with
+	/// a negative space so the badge overlaps the input glyph before it.
+	/// Gestures with no mapping, such as a plain press or hold, have no badge.
+	private Optional<MutableComponent> gestureBadge(FontMap fontMap, Gesture gesture) {
+		return findGlyphs(fontMap, CUtil.rl("gesture/" + gesture.getSerializedName()))
+				.map(mapped -> createComponent(mapped.glyphs(), mapped.fontMap()));
+	}
+
+	public MutableComponent getComponentFromInput(Identifier namespace, @Nullable LogicalInput input) {
+		if (input == null) {
+			return Component.literal("<unbound>");
+		}
+
+		FontMap fontMap = getMappings(namespace);
+		return switch (input) {
+			case LogicalInput.Single(var physicalInput) -> inputComponent(fontMap, physicalInput);
+			case LogicalInput.ModifiedChord(var modifiers, var trigger) -> {
+				MutableComponent component = Component.empty();
+				boolean previousWasText = false;
+				boolean first = true;
+				for (Identifier modifier : modifiers) {
+					boolean text = findGlyphs(fontMap, modifier).isEmpty();
+					if (!first && (text || previousWasText)) {
+						component.append(plus());
+					}
+					component.append(inputComponent(fontMap, modifier));
+					previousWasText = text;
+					first = false;
+				}
+				component.append(plus());
+				yield component.append(inputComponent(fontMap, trigger));
+			}
+		};
+	}
+
+	private static MutableComponent plus() {
+		return Component.literal("+").withStyle(style -> style.withFont(FontDescription.DEFAULT));
+	}
+
+	/// The input's glyph, or a short text label for inputs no font mapping covers.
+	private MutableComponent inputComponent(FontMap fontMap, Identifier input) {
+		return findGlyphs(fontMap, input)
+				.map(mapped -> createComponent(mapped.glyphs(), mapped.fontMap()))
+				.orElseGet(() -> Component.literal(fallbackLabel(input)).withStyle(style -> style.withFont(FontDescription.DEFAULT)));
+	}
+
+	/// `button/3` is `B3`, `axis/1/positive` is `A1+`, `axis/1/negative` is `A1-`, `hat/0/up` is `H0` plus an arrow.
+	static String fallbackLabel(Identifier input) {
+		String[] parts = input.getPath().split("/");
+		try {
+			if (parts.length == 2 && parts[0].equals("button")) {
+				return "B" + Integer.parseInt(parts[1]);
+			}
+			if (parts.length == 3 && parts[0].equals("axis")) {
+				return "A" + Integer.parseInt(parts[1]) + (parts[2].equals("negative") ? "-" : "+");
+			}
+			if (parts.length == 3 && parts[0].equals("hat")) {
+				String arrow = switch (parts[2]) {
+					case "up" -> "\u2191";
+					case "right" -> "\u2192";
+					case "down" -> "\u2193";
+					case "left" -> "\u2190";
+					default -> parts[2];
+				};
+				return "H" + Integer.parseInt(parts[1]) + arrow;
+			}
+		} catch (NumberFormatException ignored) {
+		}
+		return input.getPath();
+	}
+
+	private MutableComponent createComponent(String literal, FontMap fontMap) {
+		return Component.literal(literal).withStyle(style -> style
+				.withFont(new FontDescription.Resource(fontMap.namespace().withPrefix("controller/")))
+				.withShadowColor(0x00000000) // remove shadow
+				.withColor(0xFFFFFFFF)); // override color of font renderer so the glyph always renders properly
+	}
+
+	private Optional<MappedGlyphs> findGlyphs(FontMap fontMap, Identifier key) {
+		String glyphs = fontMap.glyphs().get(key);
+		if (glyphs != null) {
+			return Optional.of(new MappedGlyphs(glyphs, fontMap));
+		}
+
+		// fallback to default icon set if there is no mapping
+		glyphs = defaultFontMap.glyphs().get(key);
+		if (glyphs != null) {
+			return Optional.of(new MappedGlyphs(glyphs, defaultFontMap));
+		}
+
+		return Optional.empty();
+	}
+
+	@Override
+	public Identifier getReloadId() {
+		return CUtil.rl("font_mappings");
+	}
+
+	public record Preparations(Map<Identifier, FontMap> mappings) {
+	}
+	public record FontMap(Identifier namespace, Map<Identifier, String> glyphs) {
+	}
+
+	private record MappedGlyphs(String glyphs, FontMap fontMap) {
+	}
+}

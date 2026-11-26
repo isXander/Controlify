@@ -46,8 +46,8 @@ public class TestUnitWorldContext implements ReversibleCallback {
 		//? if >=26.2 {
 		this.world.getConnection().waitForChunksDownload();
 		//?} else {
-		/*this.world.getClientLevel().waitForChunksDownload();
-		*///?}
+		//this.world.getClientLevel().waitForChunksDownload();
+		//?}
 		this.level = this.world.getServer().computeOnServer(server -> CTestUtil.getPrincipalPlayer(server).level());
 		this.floorY = this.world.getServer().computeOnServer(server -> {
 			var player = CTestUtil.getPrincipalPlayer(server);
@@ -74,8 +74,8 @@ public class TestUnitWorldContext implements ReversibleCallback {
 		//? if >=26.2 {
 		getWorld().getConnection().waitForChunksRender();
 		//?} else {
-		/*getWorld().getClientLevel().waitForChunksRender();
-		*///?}
+		//getWorld().getClientLevel().waitForChunksRender();
+		//?}
 		return region;
 	}
 

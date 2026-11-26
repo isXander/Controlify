@@ -1,0 +1,24 @@
+{
+  "defaults": {
+    "controlify:pause": "controlify:button/start",
+    "controlify:show_player_list": "controlify:button/back",
+    "controlify:walk_forward": "controlify:axis/left_stick_up",
+    "controlify:walk_backward": "controlify:axis/left_stick_down",
+    "controlify:strafe_left": "controlify:axis/left_stick_left",
+    "controlify:strafe_right": "controlify:axis/left_stick_right",
+    "controlify:look_up": "controlify:axis/right_stick_up",
+    "controlify:look_down": "controlify:axis/right_stick_down",
+    "controlify:look_left": "controlify:axis/right_stick_left",
+    "controlify:look_right": "controlify:axis/right_stick_right",
+    "controlify:change_perspective": "controlify:button/left_stick",
+    "controlify:sneak": "controlify:button/right_stick",
+    "controlify:sprint": {},
+    "controlify:jump": "controlify:button/south",
+    "controlify:drop": "controlify:button/east",
+    "controlify:inventory": "controlify:button/north",
+    "controlify:next_slot": "controlify:button/right_shoulder",
+    "controlify:prev_slot": "controlify:button/left_shoulder",
+    "controlify:use": "controlify:axis/left_trigger",
+    "controlify:attack": "controlify:axis/right_trigger"
+  }
+}

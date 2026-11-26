@@ -1,0 +1,32 @@
+{
+  "groups": {
+    "controlify:player": [
+      "controlify:incoming_damage",
+      "controlify:water_land",
+      "controlify:slow_block",
+      "controlify:heartbeat"
+    ],
+    "controlify:interaction": [
+      "controlify:outgoing_damage",
+      "controlify:item_break",
+      "controlify:use_item/block",
+      "controlify:use_item/bow",
+      "controlify:use_item/consume",
+      "controlify:use_item/crossbow",
+      "controlify:use_item/spear",
+      "controlify:use_item/toot_horn",
+      "controlify:block_break",
+      "controlify:fishing_bite"
+    ],
+    "controlify:world": [
+      "controlify:explosion",
+      "controlify:lightning",
+      "controlify:dragon_death",
+      "controlify:wither_spawn"
+    ],
+    "controlify:gui": [
+      "controlify:anvil",
+      "controlify:ui_navigate"
+    ]
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "mappings": [
+    { "from": "controlify:axis/0/negative", "to": "controlify:axis/left_stick_left", "input_type": "axis", "output_type": "axis", "min_in": 0, "min_out": 0, "max_in": 1, "max_out": 1 },
+    { "from": "controlify:axis/0/positive", "to": "controlify:axis/left_stick_right", "input_type": "axis", "output_type": "axis", "min_in": 0, "min_out": 0, "max_in": 1, "max_out": 1 },
+    { "from": "controlify:axis/1/negative", "to": "controlify:axis/left_stick_up", "input_type": "axis", "output_type": "axis", "min_in": 0, "min_out": 0, "max_in": 1, "max_out": 1 },
+    { "from": "controlify:axis/1/positive", "to": "controlify:axis/left_stick_down", "input_type": "axis", "output_type": "axis", "min_in": 0, "min_out": 0, "max_in": 1, "max_out": 1 },
+
+    { "from": "controlify:button/0", "to": "controlify:button/south", "input_type": "button", "output_type": "button", "invert": false },
+    { "from": "controlify:button/1", "to": "controlify:button/east", "input_type": "button", "output_type": "button", "invert": false },
+    { "from": "controlify:button/2", "to": "controlify:button/west", "input_type": "button", "output_type": "button", "invert": false },
+    { "from": "controlify:button/3", "to": "controlify:button/north", "input_type": "button", "output_type": "button", "invert": false },
+    { "from": "controlify:button/4", "to": "controlify:button/left_shoulder", "input_type": "button", "output_type": "button", "invert": false },
+    { "from": "controlify:button/5", "to": "controlify:button/right_shoulder", "input_type": "button", "output_type": "button", "invert": false },
+
+    { "from": "controlify:button/6", "to": "controlify:axis/left_trigger", "input_type": "button", "output_type": "axis", "off_state": 0, "on_state": 1 },
+    { "from": "controlify:button/7", "to": "controlify:axis/right_trigger", "input_type": "button", "output_type": "axis", "off_state": 0, "on_state": 1 },
+
+    { "from": "controlify:button/8", "to": "controlify:button/back", "input_type": "button", "output_type": "button", "invert": false },
+    { "from": "controlify:button/9", "to": "controlify:button/start", "input_type": "button", "output_type": "button", "invert": false }
+  ],
+  "deadzones": {
+    "controlify:left_stick": {
+      "name": "controlify:left_stick",
+      "dimensions": [
+        { "positive": "controlify:axis/left_stick_up", "negative": "controlify:axis/left_stick_down" },
+        { "positive": "controlify:axis/left_stick_left", "negative": "controlify:axis/left_stick_right" }
+      ]
+    }
+  }
+}

@@ -1,7 +1,0 @@
-{
-  "defaults": {
-    "voicechat:mute_microphone": {
-      "button": "controlify:button/misc_1"
-    }
-  }
-}

@@ -7,7 +7,7 @@
 package dev.isxander.controlify.mixins.feature.patches.analogueboat;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import dev.isxander.controlify.fixes.boatfix.AnalogBoatInput;
+import dev.isxander.controlify.impl.boatfix.AnalogBoatInput;
 import net.minecraft.world.entity.vehicle.boat.AbstractBoat;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;

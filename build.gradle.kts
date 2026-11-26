@@ -57,8 +57,8 @@ dependencies {
     commonApi(libs.sdl.java.backend.ffm)
     commonInclude(libs.sdl.java.backend.ffm)
 
-    commonApi(libs.steamdeck4j)
-    commonInclude(libs.steamdeck4j)
+	commonApi(libs.steamworks)
+	commonInclude(libs.steamworks)
 
     commonApi(libs.quilt.parsers.json)
 
@@ -89,14 +89,6 @@ dependencies {
         neoforgeCompileOnly("maven.modrinth:iris:$it")
     }
 
-    ifPresent("dep.rso") {
-        compileOnly("maven.modrinth:reeses-sodium-options:$it")
-        fabricModDependency("maven.modrinth:reeses-sodium-options:$it")
-    }
-    ifPresent("dep.rso-neoforge") {
-        neoforgeModDependency("maven.modrinth:reeses-sodium-options:$it")
-    }
-
     ifPresent("dep.svc") {
         compileOnly("maven.modrinth:simple-voice-chat:$it")
         fabricCompileOnly("maven.modrinth:simple-voice-chat:$it")
@@ -122,17 +114,8 @@ stonecutter {
         put("mod_menu", hasProperty("dep.mod-menu"))
         put("sodium", hasProperty("dep.sodium"))
         put("simple_voice_chat", hasProperty("dep.svc"))
-        put("reeses_sodium_options", hasProperty("dep.rso"))
         put("fancy_menu", hasProperty("dep.fancy-menu"))
     }
-}
-
-/// Run configurations
-
-ifPresent("dep.neoforge") {
-	runs.register("neoforgeClient") {
-		runType("client")
-	}
 }
 
 /// Metadata file generation
@@ -154,10 +137,9 @@ val commonManifest = manifests.manifest {
 
     mixin("controlify.mixins.json")
     mixin("controlify-compat.yacl.mixins.json")
-    ifPresent("deps.iris") { mixin("controlify-compat.iris.mixins.json") }
-    ifPresent("deps.sodium") { mixin("controlify-compat.sodium.mixins.json") }
-    ifPresent("deps.reeses-sodium-options") { mixin("controlify-compat.reeses-sodium-options.mixins.json") }
-    ifPresent("deps.svc") { mixin("controlify-compat.svc.mixins.json") }
+    ifPresent("dep.iris") { mixin("controlify-compat.iris.mixins.json") }
+    ifPresent("dep.sodium") { mixin("controlify-compat.sodium.mixins.json") }
+    ifPresent("dep.svc") { mixin("controlify-compat.simple-voice-chat.mixins.json") }
     mixin("controlify-compat.rrls.mixins.json")
 
     dependency("minecraft", REQUIRED, minecraftRange)
@@ -165,22 +147,33 @@ val commonManifest = manifests.manifest {
 }
 manifests {
     val rrlsData = mapOf<String, Any>("rrls" to mapOf(
+        // must match the getReloadId() of every ControlifyReloadListener
         "force_load" to listOf(
             "controlify:default_config",
             "controlify:controller_type",
             "controlify:default_binds",
-            "controlify:trigger_effect",
+            "controlify:contextual/domain/in_game",
+            "controlify:contextual/domain/container",
+            "controlify:contextual/ruleset/guide",
+            "controlify:contextual/ruleset/trigger_effect",
+            "controlify:contextual/ruleset/feedback",
+            "controlify:activators",
+            "controlify:controller_mapping",
+            "controlify:feedback_groups",
+            "controlify:feedback_effects",
             "controlify:radial_icons",
+            "controlify:font_mappings",
+            "controlify:keyboard_layout",
         )
     ))
 
     fabricModJson(sourceSets.fabric.get()) {
         from(commonManifest)
 
-        entrypoint("modmenu", "dev.isxander.controlify.fabric.compatibility.ModMenuIntegration")
-        entrypoint("main", "dev.isxander.controlify.fabric.ControlifyBootstrap")
-        entrypoint("client", "dev.isxander.controlify.fabric.ControlifyBootstrap")
-        entrypoint("server", "dev.isxander.controlify.fabric.ControlifyBootstrap")
+        entrypoint("modmenu", "dev.isxander.controlify.fabric.compat.ModMenuIntegration")
+        entrypoint("main", "dev.isxander.controlify.fabric.impl.ControlifyBootstrap")
+        entrypoint("client", "dev.isxander.controlify.fabric.impl.ControlifyBootstrap")
+        entrypoint("server", "dev.isxander.controlify.fabric.impl.ControlifyBootstrap")
         dependency("fabricloader", REQUIRED, "[0.19,)")
 
         mixin("controlify-platform.fabric.mixins.json")
@@ -207,14 +200,6 @@ tasks.withType<Jar>().configureEach {
 // incremental compilation and anonymous class constructor parameter LVT
 tasks.withType<JavaCompile>().configureEach {
 	options.compilerArgs.add("-parameters")
-}
-// Mixin 0.17.4 changed ModifyArg/ModifyVariable.at from At to At[]. Align the
-// compile APIs so common annotation encoding matches in the NeoForge check.
-// Existing Mixin runtimes accept both encodings; leave runtime dependencies unchanged.
-if (minecraftVersion == "26.3") {
-	configurations.named("neoforgeCompileClasspath") {
-		resolutionStrategy.force("net.fabricmc:sponge-mixin:0.17.4+mixin.0.8.7")
-	}
 }
 
 /// Natives in the jar
@@ -298,10 +283,6 @@ sourceSets.named { it in listOf("gametest", "test") }.configureEach {
 	compileClasspath += sourceSets.fabric.get().output
 	runtimeClasspath += sourceSets.fabric.get().output
 }
-sourceSets.named("gametest") {
-	compileClasspath += sourceSets.test.get().output
-	runtimeClasspath += sourceSets.test.get().output
-}
 configurations.named("testCompileClasspath") {
 	extendsFrom(configurations.named("fabricCompileClasspath"))
 }
@@ -325,8 +306,60 @@ dependencies {
 	gametestImplementation("net.fabricmc.fabric-api:fabric-client-gametest-api-v1")
 }
 
+/// Example addon
+///
+/// A Fabric mod that uses the public API the way the docs describe it.
+/// Docs pages import its snippets by `// #region` markers, so the snippets always compile.
+
+val example = sourceSets.create("example") {
+	compileClasspath += sourceSets.fabric.get().output
+	runtimeClasspath += sourceSets.fabric.get().output
+}
+configurations.named(example.compileClasspathConfigurationName) {
+	extendsFrom(configurations.named("fabricCompileClasspath").get())
+}
+configurations.named(example.runtimeClasspathConfigurationName) {
+	extendsFrom(configurations.named("fabricRuntimeClasspath").get())
+}
+
 tasks.test {
 	useJUnitPlatform()
+
+	val testRunDir = layout.buildDirectory.dir("junit-run")
+	workingDir = testRunDir.get().asFile
+	doFirst { testRunDir.get().asFile.mkdirs() }
+
+	// ResourceFormatsTest decodes every shipped resource file, including the example addon's
+	val resourceRoots = listOf("src/main/resources", "src/example/resources").map { rootProject.file(it) }
+	inputs.files(resourceRoots).withPropertyName("resourceRoots")
+	systemProperty("controlify.test.resourceRoots", resourceRoots.joinToString(File.pathSeparator) { it.absolutePath })
+}
+
+/// Run configs
+
+// Fabric
+loom.runConfigs {
+	configureEach {
+		runDirectory = layout.projectDirectory.dir("run")
+	}
+
+	register("exampleClient") {
+		client()
+		sourceSet = example.name
+	}
+}
+
+// NeoForge
+runs {
+	configureEach {
+		workingDirectory = layout.projectDirectory.dir("run")
+	}
+
+	ifPresent("dep.neoforge") {
+		register("neoforgeClient") {
+			runType("client")
+		}
+	}
 }
 
 /// Publishing

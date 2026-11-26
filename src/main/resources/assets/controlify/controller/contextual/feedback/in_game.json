@@ -1,0 +1,44 @@
+{
+  "rules": [
+    {
+      "for": "controlify:use_item",
+      "if": "controlify:use_animation/bow",
+      "then": "controlify:use_item/bow"
+    },
+    {
+      "for": "controlify:use_item",
+      "if": "controlify:use_animation/crossbow",
+      "then": "controlify:use_item/crossbow"
+    },
+    {
+      "for": "controlify:use_item",
+      "if": { "any_of": ["controlify:use_animation/block", "controlify:use_animation/spyglass"] },
+      "then": "controlify:use_item/block"
+    },
+    {
+      "for": "controlify:use_item",
+      "if": { "any_of": ["controlify:use_animation/eat", "controlify:use_animation/drink"] },
+      "then": "controlify:use_item/consume"
+    },
+    {
+      "for": "controlify:use_item",
+      "if": "controlify:use_animation/toot_horn",
+      "then": "controlify:use_item/toot_horn"
+    },
+    {
+      "for": "controlify:use_item",
+      "if": "controlify:use_animation/spear",
+      "then": "controlify:use_item/spear"
+    },
+    {
+      "for": "controlify:ambient",
+      "if": { "all_of": ["controlify:on_slow_block", "controlify:input_moving"] },
+      "then": "controlify:slow_block"
+    },
+    {
+      "for": "controlify:ambient",
+      "if": "controlify:has_hearts",
+      "then": "controlify:heartbeat"
+    }
+  ]
+}

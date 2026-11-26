@@ -6,10 +6,10 @@
  */
 package dev.isxander.controlify.gametest.mixin;
 
-import dev.isxander.controlify.config.settings.ControlifySettings;
-import dev.isxander.controlify.config.settings.GlobalSettings;
-import dev.isxander.controlify.config.settings.device.DeviceSettings;
-import dev.isxander.controlify.config.settings.profile.ProfileSettings;
+import dev.isxander.controlify.impl.config.settings.ControlifySettings;
+import dev.isxander.controlify.impl.config.settings.GlobalSettings;
+import dev.isxander.controlify.impl.config.settings.device.DeviceSettings;
+import dev.isxander.controlify.impl.config.settings.profile.ProfileSettings;
 import it.unimi.dsi.fastutil.ints.Int2ObjectSortedMap;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;

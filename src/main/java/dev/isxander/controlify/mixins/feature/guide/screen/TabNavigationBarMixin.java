@@ -7,9 +7,10 @@
 package dev.isxander.controlify.mixins.feature.guide.screen;
 
 import com.google.common.collect.ImmutableList;
-import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.bindings.ControlifyBindings;
-import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.api.gui.font.ActionGlyphs;
+import dev.isxander.controlify.impl.Controlify;
+import dev.isxander.controlify.impl.action.ControlifyActions;
+import dev.isxander.controlify.impl.controller.ControllerImpl;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -31,8 +32,8 @@ public class TabNavigationBarMixin {
 	//? if >=26.2 {
 	@Inject(method = "extractWidgetRenderState", at = @At("RETURN"))
 	//?} else {
-	/*@Inject(method = "extractRenderState", at = @At("RETURN"))
-	*///?}
+	//@Inject(method = "extractRenderState", at = @At("RETURN"))
+	//?}
 	private void renderControllerButtonOverlay(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta, CallbackInfo ci) {
 		if (Controlify.instance().currentInputMode().isController()) {
 			Controlify.instance().getCurrentController().ifPresent(c -> {
@@ -43,19 +44,21 @@ public class TabNavigationBarMixin {
 		}
 	}
 
-	@Unique private void renderControllerButtonOverlay(GuiGraphicsExtractor graphics, ControllerEntity controller) {
-		if (tabButtons.size() <= 1) return; // no controls necessary
+	@Unique private void renderControllerButtonOverlay(GuiGraphicsExtractor graphics, ControllerImpl controller) {
+		if (tabButtons.size() <= 1) {
+			return; // no controls necessary
+		}
 
 		TabButton firstTab = tabButtons.get(0);
 		TabButton lastTab = tabButtons.get(tabButtons.size() - 1);
 
 		Font font = Minecraft.getInstance().font;
 
-		Component prevTabText = ControlifyBindings.GUI_PREV_TAB.on(controller).inputGlyph();
+		Component prevTabText = ActionGlyphs.action(ControlifyActions.GUI_PREV_TAB.actionId());
 		int prevTabTextWidth = font.width(prevTabText);
 		graphics.text(font, prevTabText, firstTab.getX() - 2 - prevTabTextWidth, firstTab.getY() / 2 + font.lineHeight / 2, 0xFFFFFFFF);
 
-		Component nextTabText = ControlifyBindings.GUI_NEXT_TAB.on(controller).inputGlyph();
+		Component nextTabText = ActionGlyphs.action(ControlifyActions.GUI_NEXT_TAB.actionId());
 		graphics.text(font, nextTabText, lastTab.getX() + lastTab.getWidth() + 2, lastTab.getY() / 2 + font.lineHeight / 2, 0xFFFFFFFF);
 	}
 }
