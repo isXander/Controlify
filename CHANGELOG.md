@@ -5,7 +5,103 @@ This version has the following targets:
 
 **By donating on my [Patreon](https://patreon.com/isxander), you will gain access to builds of Controlify for splitscreen support and snapshot versions**
 
+Controlify v4 is the biggest update Controlify has had. Almost every part of the mod has been rewritten, from how controller input is read to how mods hook into it. This is a beta, so please report anything that feels off.
+
+Your settings and bindings carry over from v3. Addons and resource packs made for v3 need updating. A full [migration guide](https://controlify.isxander.dev/developers/migrating-to-v4) is on the docs site.
+
 ## Changes
 
-- Fix virtual mouse cursor being glitchy
-- Fix crash when rendering button guide where the player's game mode is unknown to the client
+### A new input pipeline
+
+Controlify used to check your controller's state 20 times a second. It now receives each input as an event and runs it through a pipeline every frame. Look input, gyro included, updates every frame too, so everything should feel more responsive.
+
+Controllers that start with an axis already pushed, such as triggers that rest at a non-zero value, are now detected and remapped.
+
+### Actions, gestures and chords
+
+Bindings have been replaced by actions, and an action can do more with one button:
+
+- Each action can have up to two bindings
+- Bindings can be modifier chords, such as holding one button while pressing another
+- An action is triggered by a gesture: press, release, tap, long press, hold or long hold. A tap and a long press on the same button don't conflict, so you can fit more actions on a controller. Many actions now let you change their gesture in the controls settings.
+- Tap and long press timings can be changed in the settings
+- Button glyphs show a small badge for the gesture a binding uses
+- Many built-in actions now trigger on tap instead of press
+- Binding conflicts now account for action layers, so actions that never run together no longer report false conflicts, and actions that do run together are now caught
+
+### Feedback: rumble, HD haptics and lights
+
+The rumble system has been replaced by a feedback system that drives rumble, HD haptics and controller LEDs together.
+
+- Effects are data files, so resource packs can change how anything feels or add new effects
+- Controller lights can react to the game. You can turn LED effects off in the settings.
+- Effects can be chosen by rules based on what's happening in game, using the same system as button guides and adaptive triggers. For example, the new heartbeat effect plays when your health is low.
+- Each feedback group has its own intensity setting
+- Resource packs and server admins can create new feedback without any code
+
+### Overhauled gyro
+
+Gyro has been rebuilt from scratch, with many new settings:
+
+- Gyro space: choose whether turning, tilting or both move the camera, or use world or player space, which use the accelerometer to follow how you turn in the real world
+- Activate gyro by touching the capacitive sticks or grips on the Steam Controller and Steam Deck
+- Vertical sensitivity ratio and a separate sensitivity multiplier while aiming
+- Gyro acceleration, so quick flicks turn further than slow movements
+- Gyro smoothing and tightening to steady small, shaky movements
+- Gyro calibration is more reliable and no longer mistakes slow, steady turning for drift
+- Flick stick has new flick time, snap, forward deadzone and rotate with stick settings
+
+### Full Valve hardware support
+
+The Steam Controller and Steam Deck now work out of the box, including gyro, touchpads, back buttons and HD haptics. The old enhanced driver is gone.
+
+Controlify now talks to Steam directly, so Steam no longer turns your controller into a keyboard and mouse when Minecraft wasn't launched from Steam.
+
+### Reorganised settings
+
+The settings screen has been split from three tabs into General, Aiming, Bindings, Interface, Feedback and Hardware, so settings are easier to find.
+
+### Data-driven controller mappings
+
+Joystick mappings are now data files. Resource packs can ship mappings for controllers SDL doesn't recognise, and point a controller identification entry at one with `mapping_id`. The in-game mapping maker has also been fixed: it no longer records resting axes as presses or saves half-finished mappings, and clearing a mapping now saves.
+
+### For resource pack makers
+
+Almost every Controlify resource now lives under `assets/<namespace>/controller/`. Feedback effects, feedback rules, action activators and joystick mappings are new formats. The `xbox_one` controller type has been renamed to `xbox`. Built-in glyphs moved to the Unicode private use area so text containing them no longer wraps in odd places.
+
+### For mod developers
+
+Controlify v4 has a new, smaller and more stable API, built so addons don't break with every Controlify update:
+
+- **Action API**: replaces the Bindings API. Actions have pulse, latch and continuous channels, their gestures are defined in data, and they can proxy your vanilla key mappings automatically.
+- **Screen Operation API**: screen processors and component processors are replaced by small screen and element behaviours that are composed together. Most screens can be supported by combining Controlify's built-in behaviours.
+- **Feedback API**: replaces the Rumble API. Fire or hold events from your mod and let effects and rules decide what plays.
+- **Contextual API**: contribute your mod's state to button guides, adaptive triggers and feedback rules, or register your own domain for a modded screen.
+- **Look API**: add your own look sources and scalers, for example to lower sensitivity while zoomed in.
+- **Events**: event listeners can now unsubscribe.
+- The docs site has new developer guides, and the Controlify repository includes a complete example addon that every snippet in the docs is taken from.
+
+### For servers
+
+- The vibration packets have been replaced with one packet that plays a feedback effect by ID, so effect definitions are never sent over the network
+- `/vibratecontroller` is now `/controlify feedback play`. All Controlify commands are now under `/controlify`.
+
+### Bug fixes
+
+- Fixed vanilla sliders not being adjustable with the keyboard
+- Fixed keyboard focus being lost whenever a screen opened or rebuilt its widgets
+- Fixed the virtual mouse sending a second click without a release
+- Fixed world and server list entries playing a click sound when pressed
+- Fixed block break rumble not playing in creative mode, and restarting every tick while mining the same block
+- Fixed menu navigation feedback being silenced by the pause menu
+- Fixed controllers with the same ID not getting unique IDs
+- Fixed radial menu entries for key mappings such as sprint, attack and use not registering
+- Fixed Simple Voice Chat push to talk and whisper not working while a screen is open
+- Fixed one broken keyboard layout or controller mapping file stopping the rest from loading
+- Fixed compatibility with Sodium's video settings screen on 26.1
+
+### Removed
+
+- The "controller not detected" button
+- The global GUI button guide scale setting
+- Reese's Sodium Options compatibility, as Reese's Sodium Options now provides its own
