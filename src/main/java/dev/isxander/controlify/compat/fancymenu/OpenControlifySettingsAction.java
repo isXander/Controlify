@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class OpenControlifySettingsAction extends Action {
 	public OpenControlifySettingsAction() {
-		super("controlify:open-settings");
+		super("controlify-open-settings");
 	}
 
 	@Override
